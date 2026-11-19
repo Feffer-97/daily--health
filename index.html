@@ -1,0 +1,3632 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>日常健康 · 饮食与体重记录</title>
+<style>
+:root {
+  color-scheme:light;
+  --bg:#f5f5ee; --side:#fafaf5; --card:#fffefa; --input:#fffefa;
+  --ink:#202922; --muted:#58665d; --soft:#6a766e; --line:#e1e6dc; --hair:#edf0e9;
+  --accent:#326249; --accent-hover:#284e3a; --on-accent:#fff; --tint:#e8f1e8; --subtle:#f2f5ee;
+  --carb:#5e8d70; --protein:#8a7658; --fat:#737b9b; --chart:#46775b; --chart-two:#8d7046;
+  --chart-three:#717ba0; --track:#e7ede3; --caution:#805819; --caution-bg:#faf0db;
+  --danger:#9c3e3d; --danger-bg:#fbeceb; --shadow:0 2px 4px #27392406;
+  --modal-shadow:0 20px 80px #15231832;
+  --side-width:230px;
+  --font:system-ui,-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Noto Sans CJK SC","Heiti SC",sans-serif;
+}
+:root[data-theme="dark"] {
+  color-scheme:dark;
+  --bg:#171d19; --side:#1b221d; --card:#222a24; --input:#202822;
+  --ink:#edf2eb; --muted:#bbc6bc; --soft:#aab8ad; --line:#39463c; --hair:#303d33;
+  --accent:#a9d7b6; --accent-hover:#c5e8cb; --on-accent:#192a1f; --tint:#2c4233; --subtle:#29342c;
+  --carb:#8fc2a0; --protein:#d1b78f; --fat:#abb3d6; --chart:#a0d1ae; --chart-two:#d6b880;
+  --chart-three:#abb7e0; --track:#38473b; --caution:#eed097; --caution-bg:#413521;
+  --danger:#f2aca7; --danger-bg:#492b2b; --shadow:0 2px 4px #0002;
+}
+*,*::before,*::after { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:1rem/1.55 var(--font); }
+h1,h2,h3,p { margin:0; overflow-wrap:anywhere; }
+h1 { font-size:clamp(1.85rem,3vw,2.55rem); font-weight:730; line-height:1.2; letter-spacing:-.045em; }
+h2 { font-size:1.15rem; font-weight:720; line-height:1.35; letter-spacing:-.02em; }
+h3 { font-size:1rem; font-weight:690; }
+a { color:var(--accent); }
+small,.small { font-size:.8125rem; }
+.muted { color:var(--muted); }
+.subtle { color:var(--soft); }
+.number,.stat-value, time { font-variant-numeric:tabular-nums; }
+strong { font-weight:690; }
+button,input,select,textarea { font:inherit; color:inherit; }
+button { cursor:pointer; }
+button:disabled { opacity:.54; cursor:default; }
+button,input,select,textarea,a,[tabindex] { outline-offset:3px; }
+:focus-visible { outline:2px solid var(--accent); }
+input:not([type="checkbox"]):not([type="radio"]),select,textarea {
+  display:block; width:100%; min-width:0; min-height:43px; padding:.55rem .7rem; border:1px solid var(--line);
+  border-radius:9px; background:var(--input); font-size:1rem;
+}
+input[type="search"] { appearance:none; }
+input[type="checkbox"],input[type="radio"] { accent-color:var(--accent); inline-size:1rem; block-size:1rem; flex:none; }
+input::placeholder,textarea::placeholder { color:var(--soft); opacity:1; }
+textarea { resize:vertical; }
+select {
+  appearance:none; padding-right:2rem; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%2379857b' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right .65rem center;
+}
+[hidden] { display:none!important; }
+.icon { width:20px; height:20px; flex:none; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; vertical-align:middle; }
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:.45rem; min-height:42px; padding:.5rem .82rem;
+  border:1px solid var(--line); border-radius:9px; background:var(--card); color:var(--ink);
+  font-size:.875rem; font-weight:635; line-height:1.25; text-align:center; text-decoration:none;
+}
+.btn .icon { width:17px; height:17px; }
+.btn:not(:disabled):hover { background:var(--subtle); }
+.btn.primary { border-color:var(--accent); background:var(--accent); color:var(--on-accent); }
+.btn.primary:not(:disabled):hover { background:var(--accent-hover); border-color:var(--accent-hover); }
+.btn.quiet { background:transparent; border-color:transparent; color:var(--accent); }
+.btn.danger { color:var(--danger); }
+.btn.danger:not(:disabled):hover { background:var(--danger-bg); }
+.btn.compact { min-height:35px; padding:.39rem .61rem; }
+.btn.icon-only { width:42px; flex:none; padding:0; }
+.btn.compact.icon-only { width:35px; }
+.btn.icon-only[aria-pressed="true"] { color:var(--accent); background:var(--tint); }
+.btn.icon-only[aria-pressed="true"] .icon { fill:var(--accent); }
+.sidebar {
+  position:fixed; z-index:10; inset:0 auto 0 0; width:var(--side-width); padding:27px 18px 18px;
+  background:var(--side); border-right:1px solid var(--line); display:flex; flex-direction:column; gap:26px;
+}
+.brand { display:flex; align-items:center; gap:11px; padding:0 8px; min-height:45px; }
+.brand-mark { width:38px; height:38px; display:grid; place-items:center; border-radius:12px; background:var(--accent); color:var(--on-accent); flex:none; }
+.brand-mark .icon { width:23px; height:23px; }
+.brand-name { font-size:1.11rem; font-weight:780; letter-spacing:.04em; white-space:nowrap; }
+#nav { display:grid; gap:5px; }
+.nav-link {
+  display:flex; align-items:center; gap:12px; min-width:0; min-height:44px; border:1px solid transparent; border-radius:9px;
+  padding:0 10px; background:none; text-align:left; color:var(--muted); white-space:nowrap; font-size:.91rem;
+}
+.nav-link .icon { width:19px; height:19px; }
+.nav-link:hover { background:var(--subtle); }
+.nav-link[aria-current="page"] { background:var(--tint); color:var(--accent); font-weight:720; }
+.nav-mobile { display:none; }
+.side-footer { margin-top:auto; padding:12px 8px 0; border-top:1px solid var(--line); color:var(--muted); }
+.side-status { display:flex; gap:8px; align-items:center; font-size:.8125rem; }
+.side-status .icon { width:15px; height:15px; color:var(--accent); }
+.side-footer time,.side-footer .small { display:block; margin-top:4px; }
+.workspace { margin-left:var(--side-width); min-width:0; }
+main { max-width:1360px; margin:auto; padding:32px clamp(24px,3.6vw,54px) 48px; }
+.page-head { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:24px; }
+.page-lead { margin-top:7px; color:var(--muted); font-size:.875rem; }
+.actions,.row,.wrap { display:flex; align-items:center; gap:8px; }
+.actions,.wrap { flex-wrap:wrap; }
+.spread { justify-content:space-between; }
+.align-start { align-items:flex-start; }
+.grow { flex:1; min-width:0; }
+.stack { display:grid; gap:16px; min-width:0; }
+.stack.tight { gap:10px; }
+.grid { display:grid; gap:16px; min-width:0; }
+.two { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.dash-grid { grid-template-columns:minmax(0,1.45fr) minmax(0,1fr); gap:18px; }
+.dash-grid > .card { min-height:100%; }
+.full { grid-column:1 / -1; }
+.card {
+  background:var(--card); border:1px solid var(--line); border-radius:16px;
+  box-shadow:var(--shadow); padding:21px 22px; min-width:0;
+}
+.card-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:16px; }
+.card-title { display:flex; align-items:center; gap:9px; min-width:0; }
+.card-title .icon { color:var(--accent); }
+.badge { display:inline-flex; align-items:center; max-width:100%; gap:.3rem; padding:.23rem .5rem; border-radius:6px; background:var(--subtle); color:var(--muted); font-size:.8125rem; line-height:1.35; }
+.badge.green { background:var(--tint); color:var(--accent); }
+.badge.estimate { background:var(--caution-bg); color:var(--caution); }
+.badge .icon { width:14px; height:14px; }
+.callout { padding:10px 12px; border-radius:9px; border:1px solid var(--line); background:var(--subtle); color:var(--muted); font-size:.875rem; overflow-wrap:anywhere; }
+.callout.warn { background:var(--caution-bg); color:var(--caution); border-color:transparent; }
+.callout.error { background:var(--danger-bg); color:var(--danger); border-color:transparent; }
+#storageNotice:empty { display:none; }
+#storageNotice { margin-bottom:16px; }
+.big-value { font-size:clamp(2rem,4vw,3rem); letter-spacing:-.065em; font-weight:735; line-height:1.06; }
+.unit-label { color:var(--muted); font-size:.875rem; font-weight:520; letter-spacing:0; }
+.kpi-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+.kpi { background:var(--subtle); padding:10px 11px 9px; border-radius:10px; min-width:0; overflow-wrap:anywhere; }
+.kpi .label { display:block; margin-bottom:3px; color:var(--muted); font-size:.8125rem; }
+.kpi strong { display:block; font-size:1.055rem; font-variant-numeric:tabular-nums; }
+.kpi .subtle { display:block; margin-top:3px; font-size:.8125rem; }
+.weight-overview { margin:15px 0 17px; }
+.weight-overview p { margin-top:5px; }
+.energy-overview { display:grid; grid-template-columns:157px minmax(0,1fr); align-items:center; gap:21px; margin:3px 0 15px; }
+.ring { width:157px; max-width:100%; aspect-ratio:1; position:relative; margin:0 auto; }
+.ring svg { display:block; width:100%; height:auto; }
+.ring-copy { position:absolute; inset:0; display:grid; place-content:center; justify-items:center; pointer-events:none; font-variant-numeric:tabular-nums; }
+.ring-copy strong { font-size:clamp(1.65rem,3.4vw,2.22rem); line-height:1.08; letter-spacing:-.064em; }
+.ring-copy small { color:var(--muted); margin-top:4px; font-size:.8125rem; }
+.macro-list { display:grid; gap:12px; min-width:0; }
+.macro-name { display:flex; align-items:center; gap:7px; color:var(--muted); min-width:0; font-size:.875rem; }
+.swatch { border-radius:50%; width:8px; height:8px; flex:none; background:var(--swatch,var(--accent)); }
+.macro-row { display:grid; gap:5px; }
+.macro-row strong { white-space:nowrap; font-size:.875rem; font-variant-numeric:tabular-nums; }
+.meter { height:5px; background:var(--track); border-radius:12px; overflow:hidden; }
+.meter > span { display:block; height:100%; border-radius:inherit; background:var(--swatch,var(--accent)); }
+.meal-list { display:grid; }
+.meal-line { display:grid; grid-template-columns:1fr auto auto; align-items:center; gap:10px; min-height:45px; border-bottom:1px solid var(--hair); }
+.meal-line:last-child { border-bottom:0; }
+.meal-line .icon { color:var(--accent); }
+.meal-line .btn { color:var(--accent); }
+.meal-line .row { min-width:0; }
+.meal-line .unit-label { font-size:.8125rem; }
+.meal-emblem { width:30px; height:30px; display:grid; place-items:center; background:var(--subtle); border-radius:8px; flex:none; }
+.meal-emblem .icon { width:17px; height:17px; color:var(--accent); }
+.foot-note { margin-top:11px; color:var(--muted); font-size:.8125rem; overflow-wrap:anywhere; }
+.day-bar {
+  margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; gap:12px;
+  background:var(--card); border:1px solid var(--line); border-radius:11px; padding:7px 10px; min-width:0;
+}
+.day-bar input[type="date"] { width:auto; min-width:138px; font-size:.875rem; text-align:center; }
+.day-bar .icon-only { width:35px; min-height:36px; }
+.meal-card { scroll-margin-top:12px; }
+.meal-card .card-head { margin-bottom:12px; align-items:center; flex-wrap:wrap; }
+.entry { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:start; gap:7px 13px; padding:11px 0; border-top:1px solid var(--hair); }
+.entry .entry-info { min-width:0; }
+.entry-title { display:flex; flex-wrap:wrap; align-items:center; gap:4px 7px; min-width:0; }
+.entry-title strong,.entry-note { overflow-wrap:anywhere; }
+.entry-details,.entry-note { color:var(--muted); font-size:.8125rem; margin-top:3px; }
+.entry-right { display:flex; flex-wrap:wrap; justify-content:flex-end; align-items:center; gap:4px 7px; }
+.entry-right > strong { font-size:.875rem; white-space:nowrap; }
+.entry-right .btn { min-height:34px; width:34px; }
+.empty { color:var(--muted); background:var(--subtle); padding:13px; border-radius:9px; font-size:.875rem; }
+.empty.chart-empty { display:grid; place-items:center; min-height:158px; text-align:center; }
+.seg { display:inline-flex; max-width:100%; flex-wrap:wrap; padding:3px; border:1px solid var(--line); border-radius:9px; background:var(--subtle); gap:3px; }
+.seg button { border:1px solid transparent; background:transparent; color:var(--muted); padding:.35rem .64rem; border-radius:6px; font-size:.875rem; min-height:34px; font-weight:630; }
+.seg button[aria-pressed="true"] { background:var(--card); border-color:var(--line); color:var(--accent); box-shadow:var(--shadow); }
+.seg button:hover { color:var(--accent); }
+.table-wrap { width:100%; overflow:auto; }
+table { border-collapse:collapse; width:100%; text-align:left; white-space:nowrap; font-size:.875rem; }
+th,td { border-bottom:1px solid var(--hair); padding:.62rem .52rem; vertical-align:top; }
+th { color:var(--muted); font-weight:630; }
+td:last-child { text-align:right; }
+td.text-cell { white-space:normal; min-width:8rem; max-width:21rem; overflow-wrap:anywhere; }
+.calendar-head { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); text-align:center; color:var(--muted); margin-bottom:6px; font-size:.875rem; }
+.cal-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px; }
+.day-cell {
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; padding:3px 0;
+  min-width:0; min-height:50px; border-radius:8px; border:1px solid var(--hair); background:var(--card); color:var(--ink);
+  font-size:.875rem; font-variant-numeric:tabular-nums;
+}
+.day-cell.out { color:var(--soft); background:var(--subtle); }
+.day-cell:hover,.day-cell[aria-pressed="true"] { color:var(--accent); background:var(--tint); border-color:var(--accent); }
+.day-cell.today { font-weight:770; }
+.dots { display:flex; align-items:center; justify-content:center; gap:3px; height:8px; }
+.dots .swatch { width:6px; height:6px; }
+.cal-toolbar input[type="month"] { width:auto; min-width:129px; font-size:.875rem; }
+.chart { position:relative; min-width:0; }
+.chart svg { width:100%; height:auto; display:block; overflow:visible; touch-action:pan-y; border-radius:6px; }
+.chart svg text { fill:var(--muted); font:16px var(--font); font-variant-numeric:tabular-nums; }
+.chart svg .gridline { stroke:var(--line); stroke-width:1; vector-effect:non-scaling-stroke; }
+.chart svg .cross { stroke:var(--soft); stroke-dasharray:3 4; vector-effect:non-scaling-stroke; pointer-events:none; }
+.chart svg .graph-path { fill:none; stroke-width:2.1; stroke-linecap:round; stroke-linejoin:round; vector-effect:non-scaling-stroke; }
+.chart svg .graph-point { vector-effect:non-scaling-stroke; stroke:var(--card); stroke-width:1.3; }
+.chart-legend { display:flex; gap:6px 15px; flex-wrap:wrap; color:var(--muted); font-size:.8125rem; min-height:23px; }
+.chart-legend span { display:inline-flex; gap:6px; align-items:center; }
+.chart-legend .swatch { border-radius:2px; width:10px; height:7px; }
+.chart-readout { margin-top:7px; min-height:1.4em; line-height:1.45; color:var(--muted); font-size:.8125rem; overflow-wrap:anywhere; }
+.macro-key { width:100%; border-color:transparent; text-align:left; }
+.macro-key[aria-pressed="true"] { border-color:var(--line); background:var(--tint); }
+.macro-segment { cursor:pointer; }
+.food-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,225px),1fr)); gap:11px; }
+.food-card { display:grid; gap:7px; border:1px solid var(--line); border-radius:11px; padding:12px; }
+.food-card .entry-title { flex:1; }
+.filters { display:grid; gap:8px; grid-template-columns:2fr 1fr auto; align-items:end; }
+.form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; min-width:0; }
+.form-grid.three { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.form-grid.four { grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
+label.field,.field { color:var(--muted); font-size:.875rem; font-weight:580; display:grid; gap:4px; min-width:0; }
+label.field :is(input,select,textarea) { color:var(--ink); font-weight:460; }
+label.check { display:flex; align-items:center; gap:7px; color:var(--muted); font-size:.875rem; line-height:1.45; }
+.form-actions { display:flex; flex-wrap:wrap; justify-content:flex-end; align-items:center; gap:8px; }
+dialog {
+  position:fixed; width:min(640px,calc(100% - 28px)); max-height:min(90vh,900px); max-height:min(90dvh,900px);
+  padding:0; border:1px solid var(--line); border-radius:17px; background:var(--card); color:var(--ink); box-shadow:var(--modal-shadow);
+  overscroll-behavior:contain;
+}
+dialog::backdrop { background:#16211abd; }
+.modal-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 19px; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:2; background:var(--card); }
+.modal-content { padding:17px 19px 19px; }
+dialog .stack { gap:13px; }
+.form-error { color:var(--danger); font-size:.875rem; min-width:0; overflow-wrap:anywhere; }
+.form-error:empty { display:none; }
+.food-options { display:grid; max-height:235px; overflow:auto; border:1px solid var(--line); border-radius:9px; }
+.food-options:empty { display:none; }
+.food-option { display:flex; align-items:center; justify-content:space-between; gap:7px; text-align:left; background:var(--card); border:0; border-bottom:1px solid var(--hair); padding:7px 9px; min-height:40px; font-size:.875rem; }
+.food-option:last-child { border-bottom:0; }
+.food-option:hover { background:var(--subtle); }
+.food-option small { text-align:right; color:var(--muted); flex:none; }
+.quick-picks { display:flex; align-items:center; flex-wrap:wrap; gap:5px; }
+.quick-picks:empty { display:none; }
+.portions { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,83px),1fr)); gap:6px; }
+.portion {
+  display:grid; place-items:center; align-content:center; gap:2px; min-height:69px; padding:5px 3px; border:1px solid var(--line);
+  border-radius:9px; background:var(--card); color:var(--muted); font-size:.875rem; line-height:1.25;
+}
+.portion .icon { width:21px; height:21px; color:var(--accent); }
+.portion[data-size="small"] .icon { width:16px; height:16px; margin-block:2.5px; }
+.portion[data-size="large"] .icon { width:24px; height:24px; margin-block:-1.5px; }
+.portion small { font-size:.8125rem; }
+.portion[aria-pressed="true"] { background:var(--tint); border-color:var(--accent); color:var(--accent); font-weight:680; }
+.portion:hover { border-color:var(--accent); }
+.preview-box { background:var(--subtle); border-radius:9px; padding:10px 11px; }
+.preview-box strong { font-variant-numeric:tabular-nums; }
+.toast {
+  position:fixed; z-index:30; bottom:18px; right:18px; max-width:min(440px,calc(100vw - 36px)); margin:0; padding:10px 14px;
+  background:var(--ink); color:var(--bg); box-shadow:var(--modal-shadow); border-radius:9px; font-size:.875rem;
+}
+.skip { position:fixed; left:10px; top:-100px; z-index:40; background:var(--card); padding:8px 14px; border-radius:8px; }
+.skip:focus { top:10px; }
+@media (max-width:1100px) {
+  :root { --side-width:184px; }
+  .sidebar { padding-inline:12px; }
+  .card { padding:17px 16px; }
+  .energy-overview { grid-template-columns:125px minmax(0,1fr); gap:12px; }
+}
+@media (max-width:900px), (hover:none) and (pointer:coarse) {
+  .sidebar { inset:auto 0 0 0; width:auto; padding:3px 4px max(5px,env(safe-area-inset-bottom)); display:block; border:0; border-top:1px solid var(--line); }
+  .sidebar .brand,.side-footer,.nav-desktop { display:none; }
+  #nav { grid-template-columns:repeat(8,minmax(0,1fr)); gap:2px; }
+  .nav-link { flex-direction:column; text-align:center; justify-content:center; gap:3px; padding:3px 0; min-height:48px; font-size:.75rem; }
+  .nav-mobile { display:block; }
+  .workspace { margin-left:0; }
+  main { padding:23px clamp(14px,3.6vw,28px) calc(71px + env(safe-area-inset-bottom)); }
+  .toast { bottom:calc(68px + env(safe-area-inset-bottom)); }
+}
+@media (max-width:660px) {
+  .two,.dash-grid { grid-template-columns:minmax(0,1fr); }
+  .dash-grid { gap:13px; }
+  .page-head { gap:8px; margin-bottom:16px; }
+  .page-lead { margin-top:4px; }
+  .card-head { margin-bottom:12px; }
+  .big-value { font-size:2.35rem; }
+  .mini-label { display:none; }
+  .filters { grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
+  .filters > :first-child { grid-column:1/-1; }
+  .day-bar { flex-wrap:wrap; }
+  .form-grid.three { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .chart svg text { font-size:17px; }
+}
+@media (max-width:380px) {
+  .card { padding:14px; }
+  .nav-link { font-size:.6875rem; }
+  .energy-overview { grid-template-columns:105px minmax(0,1fr); gap:10px; }
+  .kpi { padding-inline:6px; }
+  .kpi .label { font-size:.75rem; }
+  .entry-right { max-width:112px; }
+  .form-grid.four { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .modal-content { padding-inline:13px; }
+}
+@media print { .sidebar,.actions,.btn,dialog,.toast { display:none!important; } .workspace { margin:0; } main { padding:0; } }
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+  <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19c3-5 7-8 11-10M6 17c-2-8 4-12 13-12 1 8-3 14-10 13"/></symbol>
+  <symbol id="i-overview" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></symbol>
+  <symbol id="i-meal" viewBox="0 0 24 24"><path d="M4 10h16a8 8 0 0 1-16 0ZM8 20h8m-8-13V5m4 2V3m4 4V5"/></symbol>
+  <symbol id="i-scale" viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="16" rx="3"/><path d="M8 10a5 5 0 0 1 8 0l-1.2 2.5H9.2L8 10Zm4 2 1.5-2"/></symbol>
+  <symbol id="i-steps" viewBox="0 0 24 24"><ellipse cx="8" cy="7" rx="2.6" ry="4" transform="rotate(-22 8 7)"/><path d="m8.5 13 .5 1m7 2 .5-1"/><ellipse cx="16.7" cy="9.5" rx="2.5" ry="4" transform="rotate(24 16.7 9.5)"/></symbol>
+  <symbol id="i-trend" viewBox="0 0 24 24"><path d="M4 4v16h16M7 15l4-5 4 2 5-6"/><path d="M17 6h3v3"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="15" rx="2"/><path d="M7.5 3.5v4m9-4v4m-13 3h17m-12 4h1m3 0h1m3 0h1m-9 3h1m3 0h1"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 4h12a2 2 0 0 1 2 2v14H6.5a2.5 2.5 0 0 1 0-5H19M5 4v12m4-8h6m-6 3h4"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16m-16 5h16"/><circle cx="9" cy="7" r="2" fill="var(--card)"/><circle cx="15" cy="12" r="2" fill="var(--card)"/><circle cx="10" cy="17" r="2" fill="var(--card)"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 15.1A8.6 8.6 0 0 1 8.9 4 8.5 8.5 0 1 0 20 15.1Z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.9"/><path d="M12 2.5v2m0 15v2m-9.5-9.5h2m15 0h2M5.3 5.3l1.4 1.4m10.6 10.6 1.4 1.4m0-13.4-1.4 1.4M6.7 17.3l-1.4 1.4"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="m8 12 2.6 2.5L16 9"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 4 3 19h18L12 4Zm0 6v4m0 2.5v.2"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="m13 2-8 12h6l-1 8 9-12h-6l1-8Z"/></symbol>
+  <symbol id="i-cup" viewBox="0 0 24 24"><path d="M4 6h12v7a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V6Zm12 1h2a2 2 0 0 1 0 4h-2m-12 9h14"/></symbol>
+  <symbol id="i-bowl" viewBox="0 0 24 24"><path d="M3 9h18a9 9 0 0 1-18 0Zm5 10h8"/></symbol>
+  <symbol id="i-bowl-half" viewBox="0 0 24 24"><path d="M3 9h18a9 9 0 0 1-18 0Zm5 10h8M5 14h14"/></symbol>
+  <symbol id="i-plate" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.7"/></symbol>
+  <symbol id="i-palm" viewBox="0 0 24 24"><path d="M8.6 12V6a1.4 1.4 0 0 1 2.8 0v4-6a1.4 1.4 0 0 1 2.8 0v6-4a1.4 1.4 0 0 1 2.8 0v5-2a1.4 1.4 0 0 1 2.8 0v6.1a6 6 0 0 1-6 6h-1a6 6 0 0 1-4.8-2.4l-3.4-4.6A1.5 1.5 0 0 1 7 12l1.6 1.8Z"/></symbol>
+  <symbol id="i-piece" viewBox="0 0 24 24"><path d="m4 9 8-5 8 5v7l-8 4-8-4V9Zm0 0 8 4 8-4m-8 4v7"/></symbol>
+  <symbol id="i-apple" viewBox="0 0 24 24"><path d="M12 8c-5-4-10 1-8 7 1 3 2 5 4 5s2-1 4-1 2 1 4 1 3-2 4-5c2-6-3-11-8-7Zm0 0c0-2 1-4 4-5"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="m14 6-6 6 6 6"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="m10 6 6 6-6 6"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="m4 20 4-.8L20 7l-3-3L5 16l-1 4Zm10-13 3 3"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16m-13 0 1 13h8l1-13M9 7V4h6v3m-5 4v5m4-5v5"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 5a1 1 0 0 0-1-1H6a2 2 0 0 0-2 2v9a1 1 0 0 0 1 1"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11m-4-4 4 4 4-4M5 15v5h14v-5"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 15V4m-4 4 4-4 4 4M5 15v5h14v-5"/></symbol>
+</svg>
+<a class="skip" href="#main">跳到主要内容</a>
+<aside class="sidebar" aria-label="应用导航">
+  <div class="brand"><span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="#i-leaf"/></svg></span><span class="brand-name">日常健康</span></div>
+  <nav id="nav" aria-label="主导航"></nav>
+  <div class="side-footer" id="saveStatus"></div>
+</aside>
+<div class="workspace">
+  <main id="main" tabindex="-1">
+    <header id="pageHead" class="page-head"></header>
+    <div id="storageNotice"></div>
+    <div id="view"></div>
+    <noscript><p class="callout error">请在支持 JavaScript 的浏览器中打开文件，并启用 JavaScript。</p></noscript>
+  </main>
+</div>
+<dialog id="modal" aria-labelledby="modalTitle"></dialog>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<input id="importFile" type="file" accept=".json,application/json" hidden>
+<script id="foodData" type="text/plain">
+#米面主食|serving|熟|basic|100
+米饭|118|2.6|25.9|0.3|蒸熟|150|白米饭,白饭,白米,大米饭,蒸米饭,大米
+糙米饭|112|2.6|23.5|0.9|熟|150|糙米,糙米白饭|rice
+杂粮饭|121|3.1|25.5|0.9|熟|150|五谷饭,杂粮米饭|rice
+小米饭|119|3.5|23.7|1|熟|150||rice
+紫米饭|121|3.2|25.8|0.8|熟|150|黑米饭|rice
+糯米饭|145|3.2|31.5|0.5|熟|150||rice
+白粥|46|1.1|9.8|0.2|熟|260|大米粥,稀饭,米粥|soup
+小米粥|49|1.4|10.1|0.5|熟|260||soup
+八宝粥|78|2.4|16.2|0.7|熟，无糖参考|260|杂粮粥|soup
+南瓜粥|42|1|8.8|0.3|熟|260||soup
+皮蛋瘦肉粥|59|3.4|8.4|1.5|熟|280||dishSoup
+馒头|223|7|47|1.1|熟|75|白馒头,蒸馒头|bun
+花卷|217|6.4|43.6|2.2|熟|75||bun
+全麦馒头|218|8|43|1.4|熟|75||bun
+素包子|176|5.5|31|3.3|熟|85|菜包,菜包子,青菜包|bunDish
+肉包子|227|8.2|30.5|8|熟|90|肉包,猪肉包|bunDish
+叉烧包|230|7.2|35|6.7|熟|85||bunDish
+豆沙包|231|6.1|47|2|熟|75||bun
+烧麦|214|5.2|36|5.5|熟|45|烧卖|bunDish
+蒸饺|194|8.3|24|7.1|熟|25||bunDish
+猪肉水饺|225|8.2|25|10.5|熟|20|水饺,饺子,猪肉饺子|bunDish
+馄饨|126|5.5|16|4.2|熟，含汤|300|抄手,云吞|noodleDish
+面条|110|4|22.8|0.4|熟，沥水|210|白面条,煮面条,挂面,面|noodle
+米粉|109|1.8|24.9|0.2|熟，沥水|200|河粉,米线|noodle
+意大利面|158|5.8|30.9|0.9|熟，沥水|210|意面,通心粉|noodle
+红薯粉条|92|0.4|22.1|0.1|泡发煮熟|190|粉条,苕粉|noodle
+玉米面饼|190|5.6|38|2.3|熟|80|玉米饼|bun
+煎饼果子|226|8.4|29.5|8.3|熟|200|煎饼果儿|dish
+鸡蛋灌饼|262|9.2|31|11.3|熟|150||bunDish
+葱油饼|290|6.2|41|11.5|熟|100||bunDish
+手抓饼|332|6.1|37|18|熟，无夹料|110||bunDish
+油条|388|6.9|50.1|17.6|熟|50||bun
+油饼|399|7.5|43|22|熟|80||bun
+烧饼|298|8|53|6|熟|90||bun
+白吐司|266|8.9|49.4|3.3|熟|30|白面包,吐司,面包片,面包|slice
+全麦吐司|247|12.5|41|3.4|熟|35|全麦面包,全麦吐司片|slice
+法棍|274|9|56|1.5|熟|35|法式面包|slice
+贝果|257|10.3|50.8|1.6|熟|95||bun
+牛角包|406|8.2|45.8|21|熟|65|可颂|bun
+红薯|86|1.6|20.1|0.1|蒸熟，可食部|140|地瓜,甘薯,烤红薯,蒸红薯|bun
+紫薯|92|1.8|21|0.2|蒸熟，可食部|120||bun
+土豆|87|1.9|20.1|0.1|煮熟，去皮|130|马铃薯,洋芋,煮土豆|bun
+蒸山药|57|1.9|12.4|0.2|熟，可食部|95|山药|veg
+玉米粒|96|3.4|21|1.5|熟，可食部|100|玉米,甜玉米,玉米棒|bun
+糯玉米|140|3.9|30|1.5|熟，可食部|110|黏玉米|bun
+南瓜|26|0.9|6|0.1|蒸熟，可食部|130|蒸南瓜|veg
+芋头|84|2.2|18.5|0.2|蒸熟，可食部|100||bun
+燕麦片|379|13.2|67.7|6.5|干，即食原味|35|燕麦,即食燕麦|spoon
+大米（生）|346|7.4|77.9|0.8|生，干重|50|生大米,生米|spoon
+挂面（干）|350|11|72|1.3|生，干重|80|干面条,干挂面
+藜麦|120|4.4|21.3|1.9|煮熟|120||
+#肉禽鱼虾|palm|熟，可食部|basic|90
+鸡胸肉|165|31|0|3.6|烤熟，去皮|90|鸡胸,烤鸡胸,熟鸡胸,鸡脯肉
+鸡胸肉（生）|120|22.5|0|2.6|生，去皮|110|生鸡胸,生鸡胸肉
+鸡腿肉|179|24.8|0|8.2|熟，去皮去骨|95|鸡腿,去皮鸡腿,鸡大腿
+鸡翅|254|23.8|0|16.9|烤熟，带皮去骨|35|鸡中翅,烤鸡翅
+鸡里脊|155|29|0|3.3||90|
+鸡胗|154|30.4|0|2.7||80|鸡肫
+鸭胸肉|173|25.5|0|7.4|熟，去皮|85|鸭肉
+烤鸭|337|19|0|28.5|熟，带皮去骨|80|北京烤鸭
+鹅肉|238|28|0|13|熟，去皮|85||
+瘦牛肉|181|29.6|0|6.1|煮熟，瘦肉|90|牛肉,煮牛肉
+牛里脊|213|29|0|10||85|牛柳,牛菲力
+牛腱肉|186|32.1|0|6||85|牛腱,卤牛腱
+肥牛片|270|17|0|22|涮熟|80|肥牛,牛肉卷
+瘦羊肉|201|28|0|9||90|羊肉
+羊肉卷|276|17|0|22.5|涮熟|75|肥羊卷
+猪里脊|143|26|0|3.5|熟，去可见脂肪|90|猪瘦肉,瘦猪肉,瘦肉,猪肉
+猪五花肉|390|14|0|37|熟|85|五花肉
+猪排骨|258|25|0|17|熟，去骨可食部|80|排骨,猪小排
+猪肝|165|26|4.5|4.5|煮熟|80||
+猪肚|158|22|0|7.3|煮熟|80||
+午餐肉|294|12|8|24|即食，配方参考|60||slice
+鸡肉香肠|196|14|8|12|熟，配方参考|55|鸡肉肠|bun
+广式腊肠|460|20|10|38|蒸熟，配方参考|40|腊肠,香肠|bun
+火腿片|155|18|4|7|即食，配方参考|55|火腿|slice
+鲈鱼|124|23.6|0|2.6|熟，去刺|95|海鲈鱼,清蒸鲈鱼
+鲫鱼|118|20|0|4|熟，去刺|85||
+草鱼|119|21|0|3.9|熟，去刺|95|鱼肉
+带鱼|134|19.5|0|6.2|熟，去刺|85||
+黄花鱼|120|20|0|4|熟，去刺|85|黄鱼
+三文鱼|206|22.1|0|12.4|熟，去刺|90|鲑鱼
+金枪鱼（水浸罐头）|116|25.5|0|0.8|沥干|85|金枪鱼,吞拿鱼
+鳕鱼|89|19.9|0|0.7|熟，去刺|100||
+巴沙鱼|99|17.8|0|2.9|熟，去刺|95||
+鲳鱼|139|21.5|0|5.6|熟，去刺|85||
+虾仁|99|24|0.2|0.3|熟，去壳|80|虾,大虾,基围虾
+龙虾肉|89|19|0|0.9|熟，去壳|85|龙虾
+鱿鱼|107|18|3|2.6|熟|85|鲜鱿鱼
+章鱼|164|29.8|4.4|2.1|熟|80|八爪鱼
+牡蛎|79|8.9|4.6|2.3|熟，去壳|75|生蚝,蚝肉
+扇贝|111|20.5|5.4|0.8|熟，去壳|80|扇贝肉
+蛤蜊|148|25.6|5.1|2|熟，去壳|70|花蛤,花甲
+梭子蟹|101|20|1|2|熟，去壳|80|海蟹,螃蟹,蟹肉
+#蛋奶豆类|bun|熟，可食部|basic|55
+水煮鸡蛋|155|12.6|1.1|10.6|熟，去壳|50|鸡蛋,水煮蛋,煮鸡蛋,白煮蛋,煮蛋
+茶叶蛋|151|12.2|1.5|10.6|熟，去壳|50|茶蛋
+荷包蛋|196|13.6|0.8|15|煎熟，含油|50|煎蛋,煎鸡蛋
+鸡蛋蛋白|52|10.9|0.7|0.2|熟，可食部|33|蛋白,鸡蛋白
+鸡蛋蛋黄|322|15.9|3.6|26.5|熟，可食部|17|蛋黄,鸡蛋黄
+鹌鹑蛋|158|13.1|0.4|11.1|熟，去壳|9||
+皮蛋|171|14.2|4.5|10.7|即食，去壳|55|松花蛋
+咸鸭蛋|190|13.1|6.3|12.7|熟，去壳|58||
+纯牛奶|61|3.2|4.8|3.25|即饮，全脂|250|牛奶,全脂牛奶|drink|1.03
+低脂牛奶|46|3.4|4.9|1.5|即饮|250||drink|1.03
+脱脂牛奶|35|3.4|5|0.2|即饮|250||drink|1.03
+无糖酸奶|63|4|5.2|3.1|即食|150|原味无糖酸奶,原味酸奶|drink|1.04
+加糖酸奶|85|3.1|12.5|2.7|即食，配方参考|150|酸奶|drink|1.04
+希腊酸奶|73|9.2|3.9|2|即食，原味低脂|150|希腊式酸奶|serving
+无糖豆浆|33|3.1|1.8|1.6|熟，无糖|250|豆浆,现磨豆浆|drink|1.01
+甜豆浆|53|2.7|7.1|1.7|熟，加糖|250|加糖豆浆|drink|1.02
+奶酪片|310|17|6|24|即食|20|芝士片,芝士|slice
+北豆腐|98|12.2|2|4.8|未烹调|100|老豆腐,板豆腐,豆腐|palm
+嫩豆腐|55|5|2.5|2.7|未烹调|100|南豆腐,绢豆腐|palm
+豆腐干|142|16.2|7.7|5.6|即食原味参考|70|香干,豆干|palm
+豆腐皮|196|20|11|8|湿重，未加油|65|千张,百叶,干豆腐|palm
+腐竹|153|14|5|8|泡发后，未加油|80||palm
+油豆腐|245|17|7|17|熟，油炸|12|豆腐泡|bun
+水煮黄豆|172|18.2|8.4|9|熟，沥水|100|黄豆|veg
+毛豆仁|121|11.9|8.9|5.2|熟，去壳|85|毛豆,毛豆米|veg
+红豆|128|7.5|24.8|0.1|熟，沥水|90|赤小豆|veg
+绿豆|105|7|19.1|0.4|熟，沥水|90||veg
+鹰嘴豆|164|8.9|27.4|2.6|熟，沥水|90||veg
+#蔬菜菌菇|veg|熟，未加油|basic|115
+大白菜|16|1.2|3.1|0.2||120|白菜,娃娃菜
+小白菜|16|1.5|2.7|0.2||110|上海青,青梗菜,菜心
+油麦菜|15|1.4|2.6|0.3||110||
+生菜|15|1.4|2.9|0.2|生，可食部|105|莴苣叶
+菠菜|23|3|3.8|0.3||110|焯菠菜
+空心菜|20|2.2|3.5|0.3||110|藤藤菜,蕹菜
+苋菜|25|2.5|4|0.3||110|红苋菜
+茼蒿|21|2|3.6|0.4||105|蓬蒿
+芥蓝|22|2.1|3.8|0.4||110||
+西兰花|35|2.4|7.2|0.4||120|西蓝花,绿花菜,焯西兰花
+白花菜|23|1.8|4.1|0.5||120|菜花,花椰菜,花菜
+卷心菜|23|1.3|5.5|0.1||120|包菜,圆白菜,甘蓝
+番茄|18|0.9|3.9|0.2|生，可食部|120|西红柿|fruit
+圣女果|22|1|4.6|0.2|生，可食部|16|小番茄,小西红柿|fruit
+黄瓜|15|0.7|3.6|0.1|生，可食部|160|青瓜|fruit
+丝瓜|20|1.2|4.2|0.2||130||
+冬瓜|12|0.4|2.7|0.2||140||
+西葫芦|17|1.2|3.1|0.3||125|角瓜
+苦瓜|19|1|4.3|0.2||125||
+茄子|35|0.8|8.7|0.2||125|蒸茄子
+白萝卜|18|0.6|4.1|0.1||120|大萝卜
+胡萝卜|35|0.8|8.2|0.2||110|红萝卜
+莴笋|15|1|2.8|0.1||110|莴苣笋,莴苣
+莲藕|68|2|16|0.1||110|藕片,藕
+竹笋|27|2.6|5.2|0.3||110|春笋,冬笋
+芦笋|22|2.4|4.1|0.2||110||
+豌豆|84|5.4|15.6|0.2||95|豌豆粒
+四季豆|35|1.9|7.9|0.3||115|刀豆,芸豆角
+长豆角|32|1.9|6.8|0.3||115|豆角,豇豆
+西芹|18|0.8|4|0.2||115|芹菜
+韭菜|26|2.4|4.6|0.3||105||
+蒜薹|45|2.1|9.3|0.4||100|蒜苔,蒜苗
+洋葱|40|1.1|9.3|0.1|生，可食部|100||
+青椒|20|0.9|4.6|0.2|生，可食部|95|甜椒
+彩椒|31|1|6|0.3|生，可食部|100|红甜椒,灯笼椒
+绿豆芽|30|3|5.9|0.2||110|豆芽
+黄豆芽|45|4.5|4.5|1.2||110||
+香菇|34|2.2|6.8|0.5|鲜品烹熟|90|鲜香菇
+平菇|33|3.3|6.1|0.4|鲜品烹熟|95|蚝菇
+金针菇|32|2.4|6.5|0.3|鲜品烹熟|95||
+白蘑菇|28|2.2|5.3|0.5|鲜品烹熟|90|口蘑,蘑菇
+杏鲍菇|36|2.4|7|0.3|鲜品烹熟|100||
+黑木耳|27|1.5|6.5|0.2|泡发烹熟|80|木耳,泡发木耳
+海带|23|1.2|4.3|0.2|泡发烹熟|80|海带丝,海带结
+紫菜|250|30|40|3|干重|4|干紫菜|spoon
+#水果|fruit|生，可食部|basic|125
+苹果|52|0.3|13.8|0.2||170|红苹果,红富士
+香蕉|89|1.1|22.8|0.3||115|大香蕉
+梨|57|0.4|15.2|0.1||165|雪梨,香梨
+橙子|47|0.9|11.8|0.1||130|橙,脐橙
+橘子|53|0.8|13.3|0.3||90|桔子,蜜橘,柑橘
+西瓜|30|0.6|7.6|0.2||230|瓜切,西瓜切片|fruitSlice
+哈密瓜|34|0.8|8.2|0.2||150|甜瓜切片,蜜瓜|fruitSlice
+菠萝|50|0.5|13.1|0.1||145|凤梨|fruitSlice
+芒果|60|0.8|15|0.4||165||
+草莓|32|0.7|7.7|0.3||18||
+葡萄|69|0.7|18.1|0.2||8|提子,阳光玫瑰
+蓝莓|57|0.7|14.5|0.3||2||berry
+樱桃|63|1.1|16|0.2||8|车厘子
+猕猴桃|61|1.1|14.7|0.5||80|奇异果
+柚子|38|0.8|9.6|0.04||65|蜜柚|fruitSlice
+西柚|42|0.8|10.7|0.1||145|葡萄柚
+红心火龙果|57|1.1|13.2|0.3||180|火龙果
+桃子|39|0.9|9.5|0.3||145|桃,水蜜桃,油桃
+李子|46|0.7|11.4|0.3||65|李
+荔枝|66|0.8|16.5|0.4||12|鲜荔枝
+龙眼|60|1.3|15.1|0.1||8|桂圆,鲜桂圆
+柿子|70|0.6|18.6|0.2||135||
+牛油果|160|2|8.5|14.7||135|鳄梨
+石榴|83|1.7|18.7|1.2||145|红石榴
+鲜枣|122|1.1|30.5|0.3||15|冬枣,枣子
+百香果|97|2.2|23.4|0.7||18|西番莲
+椰子肉|354|3.3|15.2|33.5||65||fruitSlice
+无花果|74|0.8|19.2|0.3||55|鲜无花果
+柠檬|29|1.1|9.3|0.3||56||
+#坚果与零食|serving|即食|packaged|30
+花生仁|567|25.8|16.1|49.2|生，无壳|25|花生,生花生|nuts
+熟花生仁|587|24.4|21.3|49.7|烘烤，无壳|25|烤花生,熟花生|nuts
+杏仁|579|21.2|21.6|49.9|无盐，可食部|25|巴旦木|nuts
+核桃仁|654|15.2|13.7|65.2|无壳|25|核桃|nuts
+腰果|553|18.2|30.2|43.8|无盐，可食部|25||nuts
+开心果|562|20.2|27.2|45.3|无壳|25||nuts
+葵花籽仁|584|20.8|20|51.5|无壳|20|瓜子,葵花籽|nuts
+南瓜籽仁|559|30.2|10.7|49.1|无壳|20|南瓜子|nuts
+榛子|628|15|16.7|60.8|无壳|25||nuts
+夏威夷果|718|7.9|13.8|75.8|无壳|25|澳洲坚果|nuts
+熟板栗|245|3.2|53|2.2|烤熟，去壳|12|板栗,栗子|bun
+葡萄干|299|3.1|79.2|0.5|干，无额外加糖|25||nuts
+红枣干|282|2.6|74|0.4|干，去核|10|干枣,干红枣,红枣|bun
+梅干|240|2.2|63.9|0.4|干，无额外加糖|25|西梅干|nuts
+原味薯片|530|6|53|33|即食，品牌参考|30|薯片
+巧克力威化|510|6|61|27|即食，品牌参考|25|威化,威化饼干|bun
+苏打饼干|445|9|70|14|即食，品牌参考|8|梳打饼干|slice
+曲奇|500|6|65|24|即食，品牌参考|13|曲奇饼干,饼干|bun
+黑巧克力|598|7.8|45.9|42.6|可可 70–85% 参考|10|巧克力|slice
+牛奶巧克力|535|7.7|59.4|29.7|即食，品牌参考|10||slice
+蛋挞|305|6.5|31.2|17.5|烤熟，配方参考|60|葡式蛋挞|bun
+戚风蛋糕|300|6.5|46|10|烤熟，配方参考|65|蛋糕,戚风|slice
+芝士蛋糕|321|5.5|25.5|22.5|即食，配方参考|80|奶酪蛋糕|slice
+奶油冰淇淋|207|3.5|23.6|11|即食，配方参考|80|冰淇淋,冰激凌|scoop
+原味爆米花|387|12.9|77.8|4.5|气爆，无额外油糖|30|爆米花|scoop
+肉松|409|30|37|15.5|即食，配方参考|15||spoon
+猪肉脯|359|36|29|11|即食，配方参考|30||slice
+牛肉干|380|42|20|15|即食，配方参考|25||slice
+辣条|432|10|45|23|即食，品牌参考|40||
+果冻|80|0.2|20|0|即食，品牌参考|50||bun
+米饼|386|8|81|3|即食，品牌参考|12||slice
+#饮品奶茶咖啡|drink|即饮|packaged|500
+白开水|0|0|0|0|无添加|500|水,矿泉水,纯净水,饮用水
+无糖茶|0|0|0|0|即饮，无糖|500|茶,茶水,绿茶,红茶,乌龙茶,茉莉花茶,无糖绿茶
+美式咖啡|2|0.2|0.3|0|无糖、无奶|355|美式,冰美式,黑咖啡,咖啡
+浓缩咖啡|9|0.1|1.7|0.2|无糖、无奶|60|浓缩,意式浓缩
+拿铁（无糖）|45|2.4|4|2.1|无加糖，全脂奶参考|355|拿铁,冰拿铁,无糖拿铁||1.02
+卡布奇诺（无糖）|39|2.1|3.5|1.8|无加糖，全脂奶参考|240|卡布奇诺||1.02
+摩卡咖啡|68|2.5|9.8|2.1|含巧克力，配方估算|355|摩卡||1.04
+生椰拿铁|64|1.4|8|3|配方估算|430|椰乳咖啡||1.03
+原味奶茶|63|1.1|10.7|1.8|正常糖，无小料，配方估算|500|奶茶,原味鲜奶茶||1.04
+珍珠奶茶|85|0.9|16.7|1.7|正常糖，含珍珠，配方估算|500|珍奶,港式珍珠奶茶||1.05
+半糖鲜奶茶|50|1.6|7|1.7|半糖，无小料，配方估算|500|半糖奶茶||1.03
+无糖鲜奶茶|37|1.7|3.4|1.9|无加糖，无小料，配方估算|500|无糖奶茶||1.03
+奶盖茶|88|1.7|11.8|3.8|正常糖，含奶盖，配方估算|500|芝士奶盖茶||1.04
+蜜桃果茶|38|0.1|9.4|0|含糖，配方估算|500|水果茶,果茶,蜜桃茶||1.03
+柠檬茶|32|0|8|0|含糖，配方估算|500|冻柠茶,冰红茶||1.03
+酸梅汤|32|0.1|7.9|0|加糖，配方估算|400|乌梅汁||1.03
+纯橙汁|45|0.7|10.4|0.2|100% 果汁参考|300|橙汁,鲜榨橙汁||1.04
+纯苹果汁|46|0.1|11.3|0.1|100% 果汁参考|300|苹果汁||1.04
+鲜椰子水|19|0.7|3.7|0.2|无添加糖|350|椰子水,椰青水||1.01
+椰奶饮料|57|0.7|7.8|2.6|加糖，品牌参考|330|椰汁,椰奶||1.03
+燕麦奶|45|1|7.2|1.5|无加糖，品牌参考|250|燕麦饮||1.02
+可乐|42|0|10.6|0|含糖，品牌参考|500|普通可乐,可口可乐,百事可乐||1.04
+无糖可乐|1|0|0.2|0|无糖，品牌参考|500|零度可乐,零糖可乐
+雪碧|40|0|10|0|含糖，品牌参考|500|汽水||1.04
+无糖气泡水|0|0|0|0|无添加糖|500|苏打水,气泡水
+运动饮料|25|0|6.2|0|含糖，品牌参考|500|电解质水,宝矿力||1.02
+原味乳酸菌饮料|66|1.2|15.2|0.1|加糖，品牌参考|100|乳酸菌饮料,养乐多||1.04
+谷物奶饮料|55|1.8|9.2|1.4|含糖，品牌参考|250|早餐奶||1.03
+啤酒|43|0.5|3.6|0|普通淡色啤酒，含酒精|330||
+干红葡萄酒|85|0.1|2.6|0|含酒精|150|红酒,葡萄酒
+#高校食堂|dish|熟，整道菜|recipe|160
+宫保鸡丁|147|11|9|7.4||150|宫爆鸡丁
+番茄炒蛋|105|5.5|5.2|7||160|西红柿炒蛋,番茄炒鸡蛋,西红柿炒鸡蛋,番茄鸡蛋
+清炒青菜|58|1.9|4|3.8||150|青菜,炒青菜,清炒时蔬,时蔬
+蒜蓉西兰花|61|2.9|6.4|3.3||150|炒西兰花
+清炒油麦菜|47|1.4|3.2|3.2||150|炒油麦菜
+蒜蓉空心菜|57|2.2|4|3.7||150|炒空心菜
+蚝油生菜|52|1.4|4.1|3.4||140|炒生菜
+清炒菠菜|63|2.5|4.9|3.8||145|炒菠菜
+清炒大白菜|52|1.5|5.5|2.7||155|炒白菜,炒大白菜
+醋溜白菜|59|1.6|6.9|2.8||160|醋熘白菜,醋溜大白菜
+手撕包菜|74|1.8|6.8|4.5||150|炒包菜,干锅包菜
+酸辣土豆丝|99|1.8|13.6|4.2||155|土豆丝,清炒土豆丝,炒土豆丝
+青椒土豆片|109|2|14|5||155|土豆片,炒土豆片
+韭菜炒鸡蛋|134|8.2|4|9.5||150|韭菜炒蛋
+青椒炒鸡蛋|127|7.2|4.6|8.9||155|青椒炒蛋
+蒸鸡蛋羹|86|6.6|1.7|5.9||140|鸡蛋羹,蒸蛋,水蒸蛋
+肉末蒸蛋|112|9|2|7.6||145|肉沫蒸蛋
+清蒸鲈鱼|124|20.8|1.2|4.1||140|清蒸鱼
+红烧带鱼|166|17|5.5|8.5||140|带鱼红烧
+红烧鸡腿|170|18|4.2|9||125|卤鸡腿,红烧琵琶腿
+黄焖鸡|158|12.9|7.1|8.7||210|黄焖鸡肉,黄焖鸡块
+红烧鸡块|174|16.5|3.8|10.2||155|红烧鸡
+咖喱鸡块|147|11|10|7||195|咖喱鸡,咖喱土豆鸡
+土豆炖牛肉|133|8.3|11|6.1||200|土豆烧牛肉
+番茄炖牛腩|146|10|4|10||200|番茄牛腩,西红柿牛腩
+黑椒牛柳|159|12.4|6.9|9.4||155|黑胡椒牛柳
+青椒肉丝|146|10.7|6.7|8.5||155|青椒炒肉丝,青椒猪肉丝
+芹菜炒肉|128|8.8|4.5|8.3||155|芹菜肉丝
+蒜薹炒肉|152|9.8|8.3|9||155|蒜苔炒肉,蒜薹肉丝
+小炒肉|213|10.1|5|17||150|农家小炒肉,辣椒炒肉
+香干炒肉|173|13|6|10.7||155|香干肉丝
+笋炒肉片|135|10.5|4.4|8.4||155|竹笋炒肉,笋炒肉
+木须肉|148|10.1|6.6|9||160|苜蓿肉
+京酱肉丝|176|16|10|8||155||
+芹菜炒豆干|118|8.7|6.7|6.3||155|芹菜香干,芹菜炒香干
+家常豆腐|125|7|6|8.1||163|红烧豆腐,烧豆腐
+白菜炖豆腐|68|4.4|4.3|3.8||195||
+红烧茄子|110|1.7|13|5.7||155|烧茄子
+地三鲜|119|1.9|14.5|6||165||
+醋熘绿豆芽|54|2.2|5.1|2.8||150|炒豆芽,醋溜豆芽
+肉末豆角|125|7|7.3|7.5||155|肉沫豆角,碎肉豇豆
+糖醋里脊|244|11.5|23|11.8||145||
+糖醋排骨|272|16|13|17||135|| 
+红烧肉|301|11.8|6|25.5||130||
+梅菜扣肉|278|12|7|22.5||140|扣肉,梅干菜扣肉
+红烧狮子头|204|13|6.2|14||135|狮子头,四喜丸子
+大盘鸡|167|12|9.7|9||220||
+炸鸡排|261|16|16|14.8||130|鸡排,炸鸡扒
+炸鸡腿|258|19|9.5|16||115||
+炸薯条|312|3.4|41.4|14.7||105|薯条
+凉拌黄瓜|46|0.9|5|2.7||125|拍黄瓜
+凉拌木耳|62|1.6|7.4|3.1||120||
+凉拌海带丝|59|1.5|6.6|3||120|凉拌海带
+紫菜蛋花汤|25|1.5|1.8|1.2|熟，含汤|260|紫菜鸡蛋汤|dishSoup
+番茄蛋汤|30|1.6|2.6|1.5|熟，含汤|260|番茄蛋花汤,西红柿鸡蛋汤|dishSoup
+冬瓜排骨汤|47|3.5|2.1|2.7|熟，含汤及可食配料|270||dishSoup
+海带排骨汤|55|4|2.4|3.3|熟，含汤及可食配料|270||dishSoup
+玉米排骨汤|64|4.3|5.4|2.8|熟，含汤及可食配料|275||dishSoup
+菌菇汤|24|1.5|3.1|0.6|熟，含汤|265|蘑菇汤|dishSoup
+蛋炒饭|164|5.6|24.1|5.1|熟，整份|280|鸡蛋炒饭,炒饭
+扬州炒饭|173|6.8|23|5.9|熟，整份|280||
+盖浇饭（鸡肉）|152|7|19|5.4|熟，含米饭与菜|390|鸡肉盖饭,鸡肉盖浇饭
+卤肉饭|192|7.2|22|8.1|熟，含饭与卤肉|385|卤肉盖饭
+牛肉面|99|5.2|13.2|2.8|熟，含汤与牛肉|440|牛肉汤面,兰州拉面|noodleDish
+番茄鸡蛋面|94|3.7|13.2|2.9|熟，含汤|400|番茄蛋面,西红柿鸡蛋面|noodleDish
+炸酱面|169|6.7|24.6|5.3|熟，拌面|330||noodleDish
+葱油拌面|185|4.8|28|6.1|熟，拌面|310||noodleDish
+鸡蛋炒面|171|6|24|5.8|熟，整份|320|炒面|noodleDish
+鸡蛋炒米粉|167|4.7|25|5.5|熟，整份|320|炒米粉,炒米线,炒河粉|noodleDish
+螺蛳粉|119|3.8|16.2|4.4|熟，含配料及部分汤|440||noodleDish
+#川菜与麻辣餐|dish|熟，整道菜|recipe|155
+麻婆豆腐|132|7.4|5.6|8.9||155||
+回锅肉|273|10.7|5.5|23.1||145||
+鱼香肉丝|159|10.3|10.5|8.4||160||
+鱼香茄子|132|2.1|14.3|7.4||160||
+水煮牛肉|169|12.4|5.6|10.8|熟，含菜与部分汤汁|190||
+水煮肉片|171|12|5.2|11.4|熟，含菜与部分汤汁|190||
+水煮鱼|160|15|3|9.8|熟，去骨含部分汤汁|180||
+酸菜鱼|124|13|2.4|7|熟，含酸菜与部分汤汁|200||
+辣子鸡|212|19.5|5.6|12.4|熟，不含整颗干椒|150|辣子鸡丁
+宫保虾仁|144|11|9|7.1||155||
+干煸四季豆|129|3.6|10.7|8||155|干煸豆角
+干锅花菜|118|3.6|9|7.5||160|干锅菜花,干锅花椰菜
+干锅土豆片|163|3.1|21|7.6||160|干锅土豆
+干锅鸡|199|15.5|7|12.1||165||
+干锅虾|183|16|8|9.7||160||
+冒菜|120|6.8|9.2|6.2|熟，荤素混合，少量汤汁|320||
+麻辣香锅|187|9.7|12|11.1|熟，荤素混合|300||
+麻辣烫|106|5.5|9.2|5.3|熟，荤素混合，少量汤汁|350|麻辣拌
+口水鸡|197|17.2|3.2|12.9|熟，含红油调味|150||
+怪味鸡丝|157|16|4.6|8.2||155||
+夫妻肺片|178|15.5|4.6|11||140||
+红油耳片|207|16|3.8|14.2||130|凉拌猪耳朵
+蒜泥白肉|257|13|4|21||140||
+盐煎肉|259|12|6|21.5||150|盐煎回锅肉
+牙签牛肉|219|19|7|12.8||135||
+尖椒鸡|173|14|4.6|11||150||
+泡椒鸡杂|153|13.4|5.6|8.6||155|鸡杂
+泡椒牛肉|161|15.2|5.8|8.5||155||
+老妈蹄花|181|13.7|4|12.2|熟，含可食猪蹄及汤|240|蹄花汤,猪蹄汤|dishSoup
+酸辣粉|116|2.2|20.5|2.8|熟，含配料及部分汤|370||noodleDish
+担担面|151|5.3|23.7|4.8|熟，拌面|310||noodleDish
+重庆小面|145|4.7|23.8|3.8|熟，含少量汤汁|360|小面|noodleDish
+红油抄手|143|5.5|17.7|5.6|熟，含红油汁|240|红油馄饨|noodleDish
+钵钵鸡|143|10|8|8|熟，荤素混合，无大量汤汁|210|冷串串
+川式凉面|152|4.5|23.5|4.5|熟，拌面|300|凉面,四川凉面|noodleDish
+#食用油与调味品|spoon|未烹调|basic|10
+菜籽油|884|0|0|100||10|食用油,菜油,植物油,油
+花生油|884|0|0|100||10||
+大豆油|884|0|0|100||10|豆油
+橄榄油|884|0|0|100||10||
+玉米油|884|0|0|100||10||
+芝麻油|884|0|0|100||5|香油,麻油
+辣椒油|790|0.5|4|86|混合调味品参考|7|红油,辣油
+黄油|717|0.9|0.1|81.1||10|无盐黄油
+猪油|902|0|0|100||10|荤油
+生抽|53|8.1|4.9|0.1|通用酱油参考|12|淡酱油,酱油
+老抽|73|5|13|0.1|品牌参考|12||
+陈醋|29|0.5|5.6|0.1|品牌参考|12|醋,香醋
+香醋汁|60|0.8|11|1.1|调味汁参考|15||
+蚝油|99|3.4|19.2|0.7|品牌参考|12||
+郫县豆瓣酱|112|6.5|14.5|3.4|品牌参考|12|豆瓣酱
+黄豆酱|142|8|20|4|品牌参考|12||
+老干妈风味豆豉|610|5.5|9.5|61|含油豆豉酱，品牌参考|12|老干妈,豆豉辣酱
+芝麻酱|595|17|21.2|53.8||15|麻酱
+花生酱|588|25|20|50|即食，品牌参考|15||
+番茄酱|112|1.2|27|0.2|含糖调味酱参考|15|番茄沙司,茄汁
+蛋黄酱|680|1|1|75|即食，品牌参考|14|美乃滋,沙拉酱
+蜂蜜|304|0.3|82.4|0||15||
+白砂糖|387|0|100|0||10|糖,白糖,砂糖
+红糖|380|0|98|0||10||
+食盐|0|0|0|0||5|盐
+鸡精|180|10|30|2.2|品牌参考|5||
+白芝麻|573|17.7|23.5|49.7||10|芝麻
+蒜|149|6.4|33.1|0.5|生，可食部|5|大蒜,蒜瓣|bun
+姜|80|1.8|17.8|0.8|生，可食部|8|生姜||
+小葱|32|1.8|7.3|0.2|生，可食部|8|葱||
+</script>
+<script>
+"use strict";
+
+const $ = (selector, root = document) => root.querySelector(selector);
+const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+const html = value => String(value ?? "").replace(/[&<>"']/g, char => ({
+  "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+})[char]);
+const normalize = text => String(text ?? "").normalize("NFKC").toLowerCase().replace(/\s+/g, "");
+const el = id => document.getElementById(id);
+const round = (value, places = 3) => Number(value.toFixed(places)) + 0;
+const formatters = [0, 1, 2, 3, 4].map(maximumFractionDigits => new Intl.NumberFormat("zh-CN", { maximumFractionDigits }));
+const fmt = (value, places = 0) => value == null || !Number.isFinite(value) ? "—" : formatters[places].format(value);
+const signed = (value, places = 2) => value == null ? "—" : `${round(value, places) > 0 ? "+" : ""}${fmt(round(value, places), places)}`;
+const cap = (value, low, high) => Math.min(high, Math.max(low, value));
+const average = values => values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
+const nullable = value => value === "" || value == null ? null : Number(value);
+const uniqueId = () => globalThis.crypto?.randomUUID?.() || `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+const clone = value => JSON.parse(JSON.stringify(value));
+const byDay = (a, b) => a.date.localeCompare(b.date);
+const keys = ["kcal", "p", "c", "f"];
+const macroKeys = ["c", "p", "f"];
+const macros = { c:["碳水化合物","--carb"], p:["蛋白质","--protein"], f:["脂肪","--fat"] };
+const mealKeys = ["breakfast","lunch","dinner","snack","drink"];
+const meals = {breakfast:["早餐","sun"], lunch:["午餐","meal"], dinner:["晚餐","moon"], snack:["加餐","apple"], drink:["饮品","cup"]};
+const oilLabels = {light:"清淡", normal:"正常", rich:"偏油"};
+const activities = {sedentary:["久坐",1.2], light:["轻度活动",1.375], moderate:["中度活动",1.55], high:["高活动",1.725], veryHigh:["极高活动",1.9]};
+const intensity = { low:["低强度",0], moderate:["中强度",1], high:["高强度",2] };
+const sports = {
+  walking:{name:"步行 / 快走", kind:"aerobic", met:[2.8,3.8,4.8], cadence:[85,105,125]},
+  running:{name:"跑步", kind:"aerobic", met:[6.5,8.5,11], cadence:[145,165,180]},
+  cycling:{name:"骑行", kind:"aerobic", met:[4,6.8,9], cadence:[0,0,0]},
+  swimming:{name:"游泳", kind:"aerobic", met:[4.8,6,9.8], cadence:[0,0,0]},
+  hiking:{name:"徒步 / 爬山", kind:"aerobic", met:[3.5,5.3,7], cadence:[80,100,115]},
+  rope:{name:"跳绳", kind:"aerobic", met:[7,9,11.8], cadence:[85,110,135]},
+  aerobics:{name:"健身操 / 舞蹈", kind:"aerobic", met:[3.5,5,7.3], cadence:[65,85,110]},
+  ball:{name:"球类运动", kind:"aerobic", met:[3.5,5.5,8], cadence:[55,75,100]},
+  elliptical:{name:"椭圆机", kind:"aerobic", met:[3.5,5,8], cadence:[0,0,0]},
+  otherAerobic:{name:"其他有氧", kind:"aerobic", met:[3,5,7], cadence:[0,0,0]},
+  resistance:{name:"器械 / 自由重量", kind:"strength", met:[2.8,3.5,6], cadence:[0,0,0]},
+  bodyweight:{name:"自重训练", kind:"strength", met:[2.8,3.8,6.5], cadence:[0,0,0]},
+  circuit:{name:"循环力量训练", kind:"strength", met:[3.5,5,7.5], cadence:[0,0,0]},
+  hiit:{name:"高强度间歇训练", kind:"strength", met:[4,6,9], cadence:[0,0,0]},
+  otherStrength:{name:"其他力量 / 无氧", kind:"strength", met:[2.8,3.5,6], cadence:[0,0,0]}
+};
+const sportName = sport => sport.label || sports[sport.type].name;
+const qualityLabels = {basic:"成分参考", packaged:"配方估算", recipe:"菜品估算", userExact:"手填数值", userEstimate:"手填估算"};
+const familyLabels = {
+  rice:"米饭 · 碗", soup:"粥汤 · 碗", noodle:"面类 · 碗", noodleDish:"成品面 · 碗",
+  dish:"菜品 · 大中小份", dishSoup:"菜汤 · 碗", veg:"蔬菜 · 份", palm:"肉类 · 手掌",
+  bun:"个装 · 个", bunDish:"成品点心 · 个", slice:"切片 · 片", fruit:"水果 · 个",
+  fruitSlice:"切片水果 · 片", berry:"小果 · 把", nuts:"坚果 · 把", drink:"饮品 · 杯／瓶",
+  spoon:"调味品 · 勺", scoop:"甜点 · 球", serving:"通用 · 份"
+};
+const groups = ["米面主食","肉禽鱼虾","蛋奶豆类","蔬菜菌菇","水果","坚果与零食","饮品奶茶咖啡","高校食堂","川菜与麻辣餐","食用油与调味品","自定义"];
+const refs = {
+  china:"https://nlc.chinanutri.cn/fq/",
+  rice:"https://nlc.chinanutri.cn/fq/foodinfo/287.html",
+  usda:"https://fdc.nal.usda.gov/",
+  mifflin:"https://pubmed.ncbi.nlm.nih.gov/2305711/",
+  met:"https://pacompendium.com/adult-compendium/"
+};
+const directSources = {
+  "米饭":["中国疾控中心营养与健康所 · 蒸米饭（均值，493 kJ 换算）",refs.rice],
+  "鸡胸肉":["USDA FoodData Central · 烤鸡胸肉（SR Legacy 171477，近似值）",refs.usda],
+  "水煮鸡蛋":["USDA FoodData Central · 全蛋，水煮（SR Legacy 173424，近似值）",refs.usda],
+  "香蕉":["USDA FoodData Central · 香蕉，生（SR Legacy 173944，近似值）",refs.usda]
+};
+const oilKinds = new Set(["dish","dishSoup","noodleDish","bunDish"]);
+const canAdjustOil = food => (food.quality === "recipe" || food.quality === "userEstimate") && oilKinds.has(food.kind);
+
+const MIN_DAY = "1900-01-01";
+const MAX_DAY = "2100-12-31";
+const pad = value => String(value).padStart(2, "0");
+function localDay(date = new Date()) {
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+const dateObject = date => new Date(date + "T12:00:00");
+const dayIndex = date => Math.floor(Date.parse(date + "T00:00:00Z") / 86400000);
+function shiftDay(date, n) {
+  const result = dateObject(date);
+  result.setDate(result.getDate() + n);
+  return localDay(result);
+}
+function isDay(value) {
+  return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value) && value >= MIN_DAY && value <= MAX_DAY &&
+    Number.isFinite(+dateObject(value)) && localDay(dateObject(value)) === value;
+}
+const shortDay = date => date.slice(5).replace("-", "/");
+const fullDay = new Intl.DateTimeFormat("zh-CN",{year:"numeric", month:"long", day:"numeric", weekday:"long"});
+const stampFormat = new Intl.DateTimeFormat("zh-CN",{month:"numeric", day:"numeric", hour:"2-digit", minute:"2-digit", hour12:false});
+function selectedMeal() {
+  const hour = new Date().getHours();
+  if (hour < 10) return "breakfast";
+  if (hour < 15) return "lunch";
+  if (hour < 17 || hour >= 21) return "snack";
+  return "dinner";
+}
+
+function parseCatalog(source) {
+  let section = null;
+  const result = [];
+  for (const rawLine of source.trim().split("\n")) {
+    const line = rawLine.trim();
+    if (!line) continue;
+    if (line.startsWith("#")) {
+      section = line.slice(1).split("|");
+      continue;
+    }
+    const [group, family, defaultState, defaultQuality, defaultBase] = section;
+    const [name, kcal, p, c, f, state, base, aliases, kind, density] = line.split("|").map(field => field.trim());
+    const resolvedKind = name === "米饭" ? "rice" : kind || family;
+    const resolvedState = state || defaultState;
+    let quality = defaultQuality;
+    if (/配方估算/.test(resolvedState) || oilKinds.has(resolvedKind)) quality = "recipe";
+    else if (/配方参考|品牌参考/.test(resolvedState)) quality = "packaged";
+    const direct = Object.hasOwn(directSources, name) ? directSources[name] : null;
+    const sourceLabel = quality === "recipe" ? (oilKinds.has(resolvedKind) ? "常见配方估算，含正常烹调油" : "常见配方估算，糖和配料按所列状态") :
+      quality === "packaged" ? "同类配方与包装标签范围的参考估算" : "同类食品成分近似值";
+    result.push({
+      id:"b:" + name, name, kcal:+kcal, p:+p, c:+c, f:+f, state:resolvedState, group, kind:resolvedKind, quality,
+      base:Number(base || defaultBase), aliases:aliases ? aliases.split(",").map(alias => alias.trim()) : [],
+      density:Number(density || 1), source:direct?.[0] || sourceLabel, link:direct?.[1] || ""
+    });
+  }
+  return result;
+}
+const catalog = parseCatalog(el("foodData").textContent);
+const builtins = new Map(catalog.map(food => [food.id, food]));
+const rangeByQuality = { basic:.10, packaged:.20, recipe:.30, userExact:0, userEstimate:.25 };
+const servingIcons = {
+  "碗":"bowl","半碗":"bowl-half","杯":"cup","半杯":"cup","瓶":"cup","毫升":"cup",
+  "小杯":"cup","大杯":"cup",
+  "手掌":"palm","拳头":"palm","块":"piece","片":"piece","个":"apple","半个":"apple",
+  "把":"palm","粒":"piece","球":"apple"
+};
+const initialProfile = {age:null, sex:null, height:null, initialWeight:null, goalWeight:null, refSteps:null,
+  refBmr:null, refTdee:null, activity:null, kcalGoal:null, pGoal:null, cGoal:null, fGoal:null};
+const initialSettings = {theme:"light", bowl:150, cup:250};
+const STORE_KEY = "daily-health-journal:share:v1";
+const SCHEMA = "daily-health-journal";
+function blankState() {
+  return {
+    schema:SCHEMA, version:1, profile:{...initialProfile}, settings:{...initialSettings},
+    meals:[], weights:[], steps:[], exercise:[], foods:[], favorites:[], servings:[], usual:[], combos:[],
+    firstSavedAt:null, savedAt:null, backupAt:null
+  };
+}
+const isObject = value => value !== null && typeof value === "object" && !Array.isArray(value);
+const numeric = (value, lo, hi) => typeof value === "number" && Number.isFinite(value) && value >= lo && value <= hi;
+const optionalNumber = (value, lo, hi) => value === null || numeric(value, lo, hi);
+const textWithin = (value, limit, empty = true) => typeof value === "string" && value.length <= limit && (empty || Boolean(value.trim()));
+const token = value => textWithin(value, 180, false);
+const validStamp = value => value === null || (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value) && Number.isFinite(Date.parse(value)));
+const owned = (object, key) => typeof key === "string" && Object.hasOwn(object, key);
+const validQuality = quality => owned(qualityLabels, quality);
+const hasMacros = (value, multiplier = 1) => keys.every(key => numeric(value[key], 0, (key === "kcal" ? 1000 : 100) * multiplier));
+const validAmount = value => numeric(value, .001, 10000);
+const validUnitName = unit => textWithin(unit, 12, false);
+function validBasis(basis) {
+  return basis === null || (isObject(basis) && validQuality(basis.quality) && owned(familyLabels,basis.kind) && hasMacros(basis));
+}
+function validEntry(entry) {
+  return isObject(entry) && token(entry.id) && isDay(entry.date) && mealKeys.includes(entry.meal) &&
+    textWithin(entry.name, 100, false) && (entry.foodId === null || token(entry.foodId)) &&
+    validAmount(entry.amount) && validUnitName(entry.unit) && optionalNumber(entry.grams, .001, 10000) &&
+    optionalNumber(entry.unitGrams, .000001, 10000) && ((entry.grams === null) === (entry.unitGrams === null)) &&
+    owned(oilLabels, entry.oil) && hasMacros(entry, 100) && optionalNumber(entry.low, 0, 180000) &&
+    optionalNumber(entry.high, 0, 180000) && (entry.low === null ? entry.high === null :
+      entry.high !== null && entry.low <= entry.kcal && entry.high >= entry.kcal) &&
+    validQuality(entry.quality) && validBasis(entry.basis) && (entry.basis === null || entry.grams !== null) && textWithin(entry.note, 500);
+}
+function validProfile(p) {
+  return isObject(p) && (p.age === null || (Number.isInteger(p.age) && numeric(p.age, 18, 120))) &&
+    [null,"female","male"].includes(p.sex) && optionalNumber(p.height, 80, 250) &&
+    optionalNumber(p.initialWeight, 15, 650) && optionalNumber(p.goalWeight, 15, 650) &&
+    (p.refSteps === null || (Number.isInteger(p.refSteps) && numeric(p.refSteps, 0, 150000))) &&
+    optionalNumber(p.refBmr, 300, 9500) && optionalNumber(p.refTdee, 300, 15000) &&
+    (p.activity === null || owned(activities, p.activity)) && optionalNumber(p.kcalGoal, 1, 12000) &&
+    ["pGoal","cGoal","fGoal"].every(key => optionalNumber(p[key], 1, 1500));
+}
+function validFood(food) {
+  return isObject(food) && token(food.id) && food.id.startsWith("u:") && textWithin(food.name, 100, false) &&
+    ["userExact","userEstimate"].includes(food.quality) && textWithin(food.state, 70, false) && food.group === "自定义" &&
+    owned(familyLabels, food.kind) && numeric(food.base, .01, 10000) && numeric(food.density, .5, 2) &&
+    textWithin(food.source, 160) && Array.isArray(food.aliases) && food.aliases.length <= 15 &&
+    food.aliases.every(alias => textWithin(alias, 60, false)) && hasMacros(food);
+}
+function validWeight(weight) {
+  return isObject(weight) && isDay(weight.date) && numeric(weight.kg, 15, 650) &&
+    optionalNumber(weight.fat, 1, 75) && typeof weight.time === "string" &&
+    /^([01]\d|2[0-3]):[0-5]\d$/.test(weight.time) && textWithin(weight.note, 500);
+}
+function validExercise(sport) {
+  return isObject(sport) && token(sport.id) && isDay(sport.date) && owned(sports, sport.type) &&
+    owned(intensity, sport.intensity) && numeric(sport.minutes, 1, 1440) && textWithin(sport.label, 80) &&
+    typeof sport.counted === "boolean" && optionalNumber(sport.sportSteps, 0, 150000) &&
+    (sport.sportSteps === null || Number.isInteger(sport.sportSteps)) && (sport.counted || sport.sportSteps === null) &&
+    textWithin(sport.note, 500);
+}
+function validateState(state) {
+  if (!isObject(state) || state.schema !== SCHEMA || state.version !== 1) throw Error("请选择本应用导出的第 1 版 JSON 备份。");
+  if (!validProfile(state.profile)) throw Error("个人资料字段缺失或数值超出可接受范围。");
+  const settings = state.settings;
+  if (!isObject(settings) || !["light","dark"].includes(settings.theme) ||
+      !numeric(settings.bowl, 1, 2000) || !numeric(settings.cup, 1, 2000)) throw Error("主题或常用容量设置不完整。");
+  function checkList(key, validator, unique, label) {
+    const values = state[key];
+    if (!Array.isArray(values) || !values.every(validator) || (unique && new Set(values.map(unique)).size !== values.length)) {
+      throw Error(`${label}缺失、重复或包含无效字段。`);
+    }
+  }
+  checkList("meals", validEntry, entry => entry.id, "饮食记录");
+  checkList("weights", validWeight, weight => weight.date, "体重记录");
+  checkList("steps", step => isObject(step) && isDay(step.date) && Number.isInteger(step.count) &&
+    numeric(step.count, 0, 150000), step => step.date, "步数记录");
+  checkList("exercise", validExercise, sport => sport.id, "运动记录");
+  checkList("foods", validFood, food => food.id, "自定义食物");
+  const customIds = new Set(state.foods.map(food => food.id));
+  const exists = id => builtins.has(id) || customIds.has(id);
+  checkList("favorites", id => token(id) && exists(id), id => id, "收藏");
+  checkList("servings", item => isObject(item) && token(item.foodId) && exists(item.foodId) &&
+    validUnitName(item.unit) && numeric(item.grams, .000001, 10000), item => item.foodId + "\u0000" + item.unit, "份量设置");
+  checkList("usual", item => isObject(item) && token(item.foodId) && exists(item.foodId) &&
+    validUnitName(item.unit) && validAmount(item.amount), item => item.foodId, "常用份量");
+  checkList("combos", combo => isObject(combo) && token(combo.id) && textWithin(combo.name, 100, false) &&
+    Array.isArray(combo.items) && combo.items.length > 0 && combo.items.every(validEntry), combo => combo.id, "组合餐食");
+  if (![state.firstSavedAt,state.savedAt,state.backupAt].every(validStamp)) throw Error("存储时间格式无效。");
+  return state;
+}
+let data = blankState();
+let storageMode = "ready";
+let storedRaw = null;
+try {
+  storedRaw = localStorage.getItem(STORE_KEY);
+} catch {
+  storageMode = "memory";
+}
+if (storedRaw !== null) {
+  try {
+    data = validateState(JSON.parse(storedRaw));
+  } catch {
+    storageMode = "invalid";
+  }
+}
+
+const ui = {
+  view:"overview", date:localDay(), calMonth:localDay().slice(0,7), trendRange:"30", trendGroup:"week",
+  dbQuery:"", dbGroup:"", dbFilter:"all", dbLimit:24, hxQuery:"", hxStart:"", hxEnd:"", hxLimit:20,
+  weightLimit:20, editor:null, quick:null, custom:null, dialogCancel:null, dialogTrigger:null, charts:new Map()
+};
+
+function notify(message) {
+  const toast = el("toast");
+  toast.textContent = message;
+  toast.hidden = false;
+  clearTimeout(notify.timer);
+  notify.timer = setTimeout(() => { toast.hidden = true; }, 4100);
+}
+function errorMessage(message) {
+  const area = $("#modal .form-error") || $("#view .form-error");
+  if (area) area.textContent = message;
+  else notify(message);
+}
+function commit(mutator, {replace = null} = {}) {
+  if (storageMode === "invalid" && replace === null) {
+    errorMessage("本地存储格式异常。请先在个人设置中恢复备份，或清空后重新开始。");
+    return false;
+  }
+  const next = replace === null ? clone(data) : clone(replace);
+  try {
+    mutator(next);
+    const stamp = new Date().toISOString();
+    next.firstSavedAt ??= stamp;
+    next.savedAt = stamp;
+    validateState(next);
+    if (storageMode !== "memory") {
+      const nowRaw = localStorage.getItem(STORE_KEY);
+      if (nowRaw !== storedRaw) {
+        syncStorage(nowRaw);
+        errorMessage("另一个标签页刚更新了数据。已同步，请再试一次。");
+        return false;
+      }
+      const raw = JSON.stringify(next);
+      try {
+        localStorage.setItem(STORE_KEY, raw);
+      } catch (error) {
+        if (storedRaw === null && error.name === "SecurityError") storageMode = "memory";
+        else throw error;
+      }
+      if (storageMode !== "memory") {
+        storedRaw = raw;
+        storageMode = "ready";
+      }
+    }
+    data = next;
+    return true;
+  } catch (error) {
+    errorMessage(error.name === "QuotaExceededError" ?
+      "浏览器本地空间不足，本次变更未保存。可以先导出 JSON 备份。" :
+      error.name === "SecurityError" ? "浏览器阻止了本地存储，本次变更未保存。" :
+      `本次变更未保存。${error.message}`);
+    return false;
+  }
+}
+function syncStorage(raw) {
+  if (storageMode === "memory" || raw === storedRaw) return;
+  storedRaw = raw;
+  try {
+    data = raw === null ? blankState() : validateState(JSON.parse(raw));
+    storageMode = "ready";
+  } catch {
+    storageMode = "invalid";
+  }
+  render();
+}
+window.addEventListener("storage", event => {
+  if (event.key === STORE_KEY || event.key === null) {
+    try { syncStorage(localStorage.getItem(STORE_KEY)); }
+    catch { /* The browser may disable storage while the page is open. */ }
+  }
+});
+
+const getFood = id => builtins.get(id) || data.foods.find(food => food.id === id);
+const allFoods = () => [...catalog, ...data.foods];
+function foodRank(food, query) {
+  const name = normalize(food.name);
+  const aliases = food.aliases.map(normalize);
+  if (name === query) return 0;
+  if (aliases.includes(query)) return 1;
+  if (name.startsWith(query)) return 2;
+  if (aliases.some(alias => alias.startsWith(query))) return 3;
+  if (name.includes(query)) return 4;
+  return aliases.some(alias => alias.includes(query)) ? 5 : Infinity;
+}
+function findFoods(text, list = allFoods()) {
+  const query = normalize(text);
+  if (!query) return list;
+  return list.map(food => [food, foodRank(food, query)]).filter(([, score]) => Number.isFinite(score))
+    .sort((a,b) => a[1] - b[1] || Number(data.favorites.includes(b[0].id)) - Number(data.favorites.includes(a[0].id)))
+    .map(([food]) => food);
+}
+function recentFoods() {
+  const ids = new Set();
+  for (const entry of [...data.meals].reverse()) {
+    if (entry.foodId && getFood(entry.foodId)) ids.add(entry.foodId);
+    if (ids.size >= 6) break;
+  }
+  return [...ids].map(getFood);
+}
+
+function portionsFor(food, state = data) {
+  const base = food.base;
+  const pick = (unit, grams) => ({unit, grams, icon:servingIcons[unit] || "plate"});
+  const sizes = (base, names = ["小份","标准份","大份"]) => names.map((name,index) => pick(name, base * [.7,1,1.4][index]));
+  let choices;
+  switch (food.kind) {
+    case "rice": {
+      const bowl = food.id.startsWith("b:") ? state.settings.bowl * base / 150 : base;
+      choices = [pick("碗",bowl),pick("半碗",bowl / 2),pick("拳头",bowl * 2 / 3),pick("份",bowl)];
+      break;
+    }
+    case "soup": choices = [pick("碗",base),pick("半碗",base / 2),...sizes(base)]; break;
+    case "noodle": case "noodleDish": choices = [pick("碗",base),pick("半碗",base / 2),...sizes(base,["小份","中份","大份"])]; break;
+    case "dish": choices = [...sizes(base),pick("半份",base / 2),pick("勺",base / 3)]; break;
+    case "dishSoup": choices = [pick("碗",base),pick("半碗",base / 2),...sizes(base)]; break;
+    case "veg": choices = [pick("份",base),pick("碗",base * 1.2),pick("拳头",base * .65),pick("半份",base / 2)]; break;
+    case "palm": choices = [pick("手掌",base),pick("块",base * .45),pick("片",base * .22),pick("份",base),pick("半份",base / 2)]; break;
+    case "bun": case "bunDish": choices = [pick("个",base),pick("半个",base / 2),pick("份",base)]; break;
+    case "slice": choices = [pick("片",base),pick("半片",base / 2),pick("份",base)]; break;
+    case "fruit": choices = [pick("个",base),pick("半个",base / 2),pick("片",base / 5),pick("份",Math.max(90,base))]; break;
+    case "fruitSlice": choices = [pick("片",base),pick("份",base),pick("半份",base / 2)]; break;
+    case "berry": choices = [pick("把",base * 25),pick("粒",base),pick("份",base * 40)]; break;
+    case "nuts": choices = [pick("把",base),pick("半把",base / 2),pick("份",base)]; break;
+    case "drink": {
+      const freshDrink = food.group === "饮品奶茶咖啡" && /咖啡|拿铁|卡布奇诺|奶茶|奶盖茶|果茶|柠檬茶|酸梅汤/.test(food.name);
+      const cup = freshDrink || !food.id.startsWith("b:") ? base : state.settings.cup;
+      const cupGrams = cup * food.density;
+      choices = [pick("杯",cupGrams),pick("半杯",cupGrams / 2)];
+      if (freshDrink && base >= 200) choices.push(pick("小杯",cupGrams * .8),pick("大杯",cupGrams * 1.25));
+      if (!freshDrink) choices.push(pick("瓶",base * food.density));
+      choices.push(pick("毫升",food.density));
+      break;
+    }
+    case "spoon": choices = [pick("勺",base),pick("茶匙",base / 3),pick("汤匙",base),pick("半勺",base / 2)]; break;
+    case "scoop": choices = [pick("球",base),pick("份",base),pick("半份",base / 2)]; break;
+    default: choices = [pick("份",base),pick("半份",base / 2),...sizes(base,["小份","标准份","大份"])];
+  }
+  const saved = new Map(state.servings.filter(item => item.foodId === food.id).map(item => [item.unit,item.grams]));
+  const byUnit = new Map(choices.map(choice => [choice.unit,choice]));
+  for (const [unit,grams] of saved) {
+    if (byUnit.has(unit)) byUnit.get(unit).grams = grams;
+  }
+  const linked = [["半碗","碗",.5],["半杯","杯",.5],["小杯","杯",.8],["大杯","杯",1.25],
+    ["半份",byUnit.has("份") ? "份" : "标准份",.5],["半个","个",.5],["半片","片",.5],["半把","把",.5],["半勺","勺",.5]];
+  if (food.kind === "rice") linked.push(["拳头","碗",2/3],["份","碗",1]);
+  if (food.kind === "dish") linked.push(["小份","标准份",.7],["大份","标准份",1.4],["勺","标准份",1/3]);
+  for (const [unit,source,ratio] of linked) {
+    const target = byUnit.get(unit);
+    const reference = byUnit.get(source);
+    if (target && reference && !saved.has(unit)) target.grams = reference.grams * ratio;
+  }
+  return choices.map(option => ({...option, grams:round(option.grams,6)}));
+}
+function defaultPortion(food, state = data, personal = true) {
+  const choices = portionsFor(food, state);
+  const usual = personal && state.usual.find(item => item.foodId === food.id);
+  const option = usual && choices.find(item => item.unit === usual.unit);
+  if (option) return {...option, amount:usual.amount};
+  const preferred = food.kind === "dish" ? choices.find(item => item.unit === "标准份") : choices[0];
+  return {...preferred, amount:1};
+}
+function nutrientBasis(food) {
+  return {kcal:food.kcal, p:food.p, c:food.c, f:food.f, quality:food.quality, kind:food.kind};
+}
+function scaleNutrition(basis, grams, oil, portionEstimated) {
+  const adjustment = canAdjustOil(basis) ?
+    (oil === "light" ? -Math.min(2,basis.f,basis.kcal / 9) : oil === "rich" ? 4 : 0) : 0;
+  const multiplier = grams / 100;
+  const kcal = round((basis.kcal + adjustment * 9) * multiplier);
+  const uncertainty = Math.max(rangeByQuality[basis.quality], portionEstimated ? .12 : 0);
+  return {
+    kcal, p:round(basis.p * multiplier), c:round(basis.c * multiplier), f:round((basis.f + adjustment) * multiplier),
+    low:uncertainty && kcal > 0 ? round(Math.max(0,kcal * (1 - uncertainty))) : null,
+    high:uncertainty && kcal > 0 ? round(kcal * (1 + uncertainty)) : null
+  };
+}
+function recordFromFood({food,basis = nutrientBasis(food),date,meal,amount,unit,unitGrams,oil = "normal",note = "",id = uniqueId()}) {
+  const grams = round(amount * unitGrams);
+  return {
+    id,date,meal,name:food.name,foodId:food.id,amount,unit,grams,unitGrams,oil,note,quality:basis.quality,basis,
+    ...scaleNutrition(basis, grams, oil, unit !== "g")
+  };
+}
+function addById(array, item) {
+  const index = array.findIndex(entry => entry.id === item.id);
+  if (index < 0) array.push(item);
+  else array[index] = item;
+}
+function addByDate(array, item) {
+  const index = array.findIndex(entry => entry.date === item.date);
+  if (index < 0) array.push(item);
+  else array[index] = item;
+}
+function sumFood(entries) {
+  const totals = {kcal:0,p:0,c:0,f:0,low:0,high:0,estimated:false,count:entries.length};
+  for (const entry of entries) {
+    for (const key of keys) totals[key] += entry[key];
+    totals.low += entry.low ?? entry.kcal;
+    totals.high += entry.high ?? entry.kcal;
+    if (entry.low !== null) totals.estimated = true;
+  }
+  return totals;
+}
+function byDate(entries) {
+  const grouped = new Map();
+  for (const entry of entries) {
+    if (!grouped.has(entry.date)) grouped.set(entry.date, []);
+    grouped.get(entry.date).push(entry);
+  }
+  return grouped;
+}
+const dayFood = date => data.meals.filter(entry => entry.date === date);
+const daySports = date => data.exercise.filter(sport => sport.date === date);
+const daySteps = date => data.steps.find(item => item.date === date)?.count ?? null;
+const sortWeights = (state = data) => [...state.weights].sort(byDay);
+function weightStats(date, weights = sortWeights()) {
+  const visible = weights.filter(weight => weight.date <= date);
+  const latest = visible.at(-1) || null;
+  const prior = visible.at(-2) || null;
+  const lastWeek = visible.filter(weight => weight.date >= shiftDay(date,-6));
+  const lastMonth = visible.filter(weight => weight.date >= shiftDay(date,-29));
+  return {
+    latest, prior, day:latest?.date === date ? latest : null,
+    sincePrevious:latest && prior ? round(latest.kg - prior.kg, 2) : null,
+    sinceInitial:latest && data.profile.initialWeight !== null ? round(latest.kg - data.profile.initialWeight, 2) : null,
+    goalDifference:latest && data.profile.goalWeight !== null ? round(latest.kg - data.profile.goalWeight, 2) : null,
+    mean7:average(lastWeek.map(weight => weight.kg)), count7:lastWeek.length,
+    change30:lastMonth.length > 1 ? round(lastMonth.at(-1).kg - lastMonth[0].kg, 2) : null
+  };
+}
+function mifflin(profile, kg) {
+  if ([kg,profile.age,profile.height,profile.sex].includes(null)) return null;
+  return 10 * kg + 6.25 * profile.height - 5 * profile.age + (profile.sex === "male" ? 5 : -161);
+}
+function metabolism(profile, kg) {
+  const initialKg = profile.initialWeight ?? kg;
+  const initialBmr = profile.refBmr ?? mifflin(profile,initialKg);
+  const standard = mifflin(profile,kg);
+  const weightAdjustment = kg === null ? 0 : 10 * (kg - initialKg);
+  const current = profile.refBmr === null ? standard : profile.refBmr + weightAdjustment;
+  const bmr = current === null ? null : Math.max(300,current);
+  const bmi = kg === null || profile.height === null ? null : kg / (profile.height / 100) ** 2;
+  let baseExtra = null;
+  if (profile.refTdee !== null && initialBmr !== null) {
+    baseExtra = Math.max(0,profile.refTdee - Math.max(300,initialBmr));
+  } else if (profile.refTdee === null && bmr !== null && profile.activity !== null) {
+    baseExtra = bmr * (activities[profile.activity][1] - 1);
+  }
+  return {bmr,bmi,standard,baseExtra};
+}
+function workoutCalories(sport, kg) {
+  if (kg === null) return null;
+  const met = sports[sport.type].met[intensity[sport.intensity][1]];
+  return (met - 1) * kg * sport.minutes / 60;
+}
+function energyEstimate(profile, kg, stepCount, exercise) {
+  const meta = metabolism(profile, kg);
+  const steps = stepCount ?? profile.refSteps;
+  const adjustSteps = kg !== null && steps !== null && profile.refSteps !== null;
+  const overlap = adjustSteps ? exercise.filter(sport => sport.counted).reduce((total,sport) => {
+    const cadence = sports[sport.type].cadence[intensity[sport.intensity][1]];
+    return total + (sport.sportSteps ?? Math.round(sport.minutes * cadence));
+  },0) : 0;
+  const dedupSteps = adjustSteps ? Math.min(overlap,steps) : 0;
+  const stepDelta = adjustSteps ? (steps - dedupSteps - profile.refSteps) * kg * .0005 : 0;
+  const workoutKcal = kg === null ? null : exercise.reduce((total,sport) => total + workoutCalories(sport,kg),0);
+  const estimate = meta.bmr === null || meta.baseExtra === null || workoutKcal === null ? null :
+    Math.max(meta.bmr,meta.bmr + meta.baseExtra + stepDelta + workoutKcal);
+  return {
+    ...meta, kg, steps, assumed:stepCount === null && steps !== null, overlap:dedupSteps, workoutKcal, stepDelta, estimate,
+    low:estimate === null ? null : estimate * .80, high:estimate === null ? null : estimate * 1.20
+  };
+}
+function dayEnergy(date, stats = weightStats(date)) {
+  return energyEstimate(data.profile,stats.latest?.kg ?? data.profile.initialWeight,daySteps(date),daySports(date));
+}
+function kcalAverage(date, days, entries = data.meals) {
+  const min = shiftDay(date,1 - days);
+  const grouped = byDate(entries.filter(entry => entry.date >= min && entry.date <= date));
+  return {mean:average([...grouped.values()].map(sumFood).map(sum => sum.kcal)), count:grouped.size};
+}
+
+const navPages = {
+  overview:["今日概览","概览","overview"], food:["饮食记录","饮食","meal"], weight:["体重记录","体重","scale"],
+  exercise:["运动记录","运动","steps"], trends:["趋势分析","趋势","trend"], calendar:["历史日历","日历","calendar"],
+  library:["食物数据库","食物库","book"], settings:["个人设置","设置","settings"]
+};
+const icon = name => `<svg class="icon" aria-hidden="true"><use href="#i-${name}"></use></svg>`;
+const dataAttrs = fields => Object.entries(fields).map(([key,value]) => ` data-${key}="${html(value)}"`).join("");
+function button(label, action, {sym = "", style = "", iconOnly = false, attrs = {}, disabled = false, pressed} = {}) {
+  return `<button type="button" class="btn ${style}${iconOnly ? " icon-only" : ""}" data-action="${action}"${dataAttrs(attrs)}${disabled ? " disabled" : ""}${pressed === undefined ? "" : ` aria-pressed="${pressed}"`}${iconOnly ? ` aria-label="${html(label)}" title="${html(label)}"` : ""}>${sym ? icon(sym) : ""}${iconOnly ? "" : html(label)}</button>`;
+}
+const option = (value,label,current) => `<option value="${html(value)}"${value === current ? " selected" : ""}>${html(label)}</option>`;
+const mealOptions = selected => mealKeys.map(meal => option(meal, meals[meal][0], selected)).join("");
+const unitText = unit => unit === "g" ? " g" : unit;
+const amountText = entry => `${fmt(entry.amount,3)}${unitText(entry.unit)}${entry.grams !== null && entry.unit !== "g" ? ` · 约 ${fmt(entry.grams,1)} g` : ""}`;
+const badge = (label, style = "") => `<span class="badge ${style}">${html(label)}</span>`;
+const empty = text => `<p class="empty">${html(text)}</p>`;
+const heading = (title, sym = "") => `<div class="card-title">${sym ? icon(sym) : ""}<h2>${html(title)}</h2></div>`;
+const titleBar = (title, rhs = "", sym = "") => `<header class="card-head">${heading(title,sym)}${rhs}</header>`;
+const swatch = color => `<i class="swatch" style="--swatch:var(${color})" aria-hidden="true"></i>`;
+const stat = (label, value, unit = "", hint = "") => `<div class="kpi"><span class="label">${html(label)}</span><strong>${html(value)}${unit && value !== "—" ? ` <span class="unit-label">${html(unit)}</span>` : ""}</strong>${hint ? `<span class="subtle">${html(hint)}</span>` : ""}</div>`;
+const kcalRange = values => `${fmt(Math.floor(values.low))}–${fmt(Math.ceil(values.high))} kcal`;
+const intakeLabel = (kcal, estimated) => (estimated ? "约 " : "") + fmt(kcal,estimated ? 0 : 1) + " kcal";
+const link = (label,url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${html(label)}</a>`;
+const noteLine = note => note ? `<p class="entry-note">${html(note)}</p>` : "";
+const dateField = (name, date, extra = "") => `<input type="date" name="${name}" value="${html(date)}" min="${MIN_DAY}" max="${MAX_DAY}" ${extra}>`;
+function field(label, control, extra = "") {
+  return `<label class="field ${extra}"><span>${html(label)}</span>${control}</label>`;
+}
+function numField(label, name, value, {min = 0, max = "", step = "any", required = false, extra = "", placeholder = ""} = {}) {
+  return field(label, `<input name="${name}" type="number" value="${html(value)}" min="${min}"${max === "" ? "" : ` max="${max}"`} step="${step}" inputmode="${step === "1" ? "numeric" : "decimal"}"${required ? " required" : ""} ${placeholder ? `placeholder="${html(placeholder)}"` : ""} ${extra}>`);
+}
+function textField(label, name, text, {max = 100, required = false, placeholder = "", extra = ""} = {}) {
+  return field(label, `<input type="text" name="${name}" value="${html(text)}" maxlength="${max}"${required ? " required" : ""} placeholder="${html(placeholder)}" ${extra}>`);
+}
+const noteField = note => field("备注（选填）", `<textarea name="note" rows="2" maxlength="500" placeholder="例如 汤汁没喝完">${html(note)}</textarea>`);
+const formError = `<p class="form-error" role="alert"></p>`;
+const submit = (label, style = "primary") => `<button class="btn ${style}" type="submit">${html(label)}</button>`;
+const modalFooter = (label, cancel = "取消", style = "primary") => `${formError}<div class="form-actions">${button(cancel,"close")}${submit(label,style)}</div>`;
+function seg(options, active, action) {
+  return `<div class="seg">${options.map(([value,label]) => `<button type="button" data-action="${action}" data-value="${html(value)}" aria-pressed="${active === value}">${html(label)}</button>`).join("")}</div>`;
+}
+function renderChrome() {
+  const theme = data.settings.theme;
+  document.documentElement.dataset.theme = theme;
+  el("nav").innerHTML = Object.entries(navPages).map(([page,[title,mobile,sym]]) =>
+    `<button type="button" class="nav-link" data-action="nav" data-view="${page}" aria-label="${title}"${page === ui.view ? ' aria-current="page"' : ""}>${icon(sym)}<span class="nav-desktop">${title}</span><span class="nav-mobile">${mobile}</span></button>`).join("");
+  const today = localDay();
+  const headingText = navPages[ui.view][0];
+  const sub = {
+    overview:`<time datetime="${today}">${fullDay.format(dateObject(today))}</time>`,
+    food:"按餐记录，支持食堂份量与离线识别",
+    weight:"按日期记录体重与体脂",
+    exercise:"记录步数与训练，查看当日能量平衡",
+    trends:"查看摄入、体重和运动的长期变化",
+    calendar:"按日期或关键词查询记录",
+    library:`${catalog.length} 种内置食物 · 按每 100 g 查看营养`,
+    settings:"管理目标、常用份量和本地备份"
+  };
+  el("pageHead").innerHTML = `<div class="grow"><h1>${headingText}</h1><p class="page-lead">${sub[ui.view]}</p></div>
+    <div class="actions">${button(theme === "light" ? "切换深色模式" : "切换浅色模式","theme",{sym:theme === "light" ? "moon" : "sun",iconOnly:true})}
+    ${ui.view === "overview" ? button("记一餐","quick",{sym:"plus",style:"primary",attrs:{date:today}}) : ""}</div>`;
+  const saved = storageMode === "ready" && data.savedAt;
+  el("saveStatus").innerHTML = `<div class="side-status">${icon(storageMode === "ready" ? "check" : "warn")}<span>${storageMode === "ready" ? "浏览器本地存储" : "本地存储异常"}</span></div>
+    ${saved ? `<time class="small" datetime="${html(saved)}">保存于 ${stampFormat.format(new Date(saved))}</time>` :
+      `<span class="small">${storageMode === "ready" ? "尚无保存记录" : "请查看备份设置"}</span>`}`;
+  const notice = el("storageNotice");
+  if (storageMode === "memory") {
+    notice.innerHTML = `<div class="callout warn">当前浏览器禁用了本地存储。关闭页面前请到个人设置导出 JSON 备份。</div>`;
+  } else if (storageMode === "invalid") {
+    notice.innerHTML = `<div class="callout error">本地数据格式异常，已暂停覆盖。可在个人设置导入可用的 JSON 备份。</div>`;
+  } else if (backupDue() && ui.view === "overview") {
+    notice.innerHTML = `<div class="callout warn row wrap spread">已有 14 天未备份。导出 JSON 可在清理浏览器数据后恢复记录。
+      ${button("备份数据","export",{style:"compact",attrs:{type:"json"}})}</div>`;
+  } else notice.textContent = "";
+}
+function render(focus = false) {
+  ui.charts.clear();
+  renderChrome();
+  const renderers = {overview:overviewView, food:foodView, weight:weightView, exercise:exerciseView,
+    trends:trendsView, calendar:calendarView, library:libraryView, settings:settingsView};
+  el("view").innerHTML = renderers[ui.view]();
+  if (focus) {
+    el("main").focus({preventScroll:true});
+    window.scrollTo(0,0);
+  }
+}
+function go(view, date = null, section = null) {
+  if (!owned(navPages,view)) return;
+  if (isDay(date)) {
+    ui.date = date;
+    ui.calMonth = date.slice(0,7);
+  }
+  if (view === "calendar") ui.calMonth = ui.date.slice(0,7);
+  ui.view = view;
+  render(true);
+  if (section) el(section)?.scrollIntoView({block:"start",behavior:"auto"});
+}
+function setDay(date, updateMonth = true) {
+  if (!isDay(date)) {
+    notify("请选择 1900–2100 年内的有效日期。");
+    return;
+  }
+  ui.date = date;
+  if (updateMonth) ui.calMonth = date.slice(0,7);
+  render();
+}
+function dayBar() {
+  return `<div class="day-bar">
+    <div class="row">
+      ${button("前一天","day-step",{sym:"left",iconOnly:true,attrs:{offset:-1},disabled:ui.date === MIN_DAY})}
+      ${dateField("activeDate",ui.date,'aria-label="记录日期" data-control="active-date"')}
+      ${button("后一天","day-step",{sym:"right",iconOnly:true,attrs:{offset:1},disabled:ui.date === MAX_DAY})}
+    </div>
+    ${button("回到今天","today",{style:"compact",disabled:ui.date === localDay()})}
+  </div>`;
+}
+function macroRows(totals) {
+  return `<div class="macro-list">${macroKeys.map(key => {
+    const [label,color] = macros[key];
+    const goal = data.profile[key+"Goal"];
+    return `<div class="macro-row" style="--swatch:var(${color})">
+      <div class="row spread"><span class="macro-name">${swatch(color)}${label}</span><strong>${fmt(totals[key],1)}${goal ? ` / ${fmt(goal,1)}` : ""} <span class="unit-label">g</span></strong></div>
+      <div class="meter" aria-hidden="true"><span style="width:${goal ? cap(totals[key] / goal * 100,0,100) : 0}%"></span></div>
+    </div>`;
+  }).join("")}</div>`;
+}
+function overviewView() {
+  const today = localDay();
+  const entries = dayFood(today);
+  const totals = sumFood(entries);
+  const profile = data.profile;
+  const goal = profile.kcalGoal;
+  const gap = goal === null ? null : goal - totals.kcal;
+  const fraction = goal ? cap(totals.kcal / goal,0,1) : 0;
+  const weight = weightStats(today);
+  const rolling = kcalAverage(today,7);
+  return `<div class="grid dash-grid">
+    <section class="card">
+      ${titleBar("今日摄入", entries.length ? (totals.estimated ? badge("估算","estimate") : "") : badge("待记录"),"meal")}
+      <div class="energy-overview">
+        <div class="ring" role="img" aria-label="今日摄入 ${fmt(totals.kcal)} 千卡${goal ? `，目标 ${fmt(goal)} 千卡` : "，热量目标未设置"}">
+          <svg viewBox="0 0 154 154" aria-hidden="true">
+            <circle cx="77" cy="77" r="65" fill="none" stroke="var(--track)" stroke-width="11"/>
+            ${fraction ? `<circle cx="77" cy="77" r="65" fill="none" stroke="var(--carb)" stroke-width="11" stroke-linecap="round"
+              pathLength="100" stroke-dasharray="${round(fraction * 100)} 100" transform="rotate(-90 77 77)"/>` : ""}
+            <circle cx="77" cy="77" r="52" fill="none" stroke="var(--hair)" stroke-width="1"/>
+          </svg>
+          <div class="ring-copy" aria-hidden="true"><strong>${fmt(totals.kcal)}</strong><small>kcal</small></div>
+        </div>
+        ${macroRows(totals)}
+      </div>
+      <div class="kpi-grid">
+        ${stat("每日目标", goal === null ? "未设置" : fmt(goal),goal === null ? "" : "kcal")}
+        ${stat(gap !== null && gap < 0 ? "超出目标" : "今日剩余",gap === null ? "—" : fmt(Math.abs(gap)),"kcal")}
+        ${stat("近 7 天日均",fmt(rolling.mean),"kcal")}
+      </div>
+      ${totals.estimated ? `<p class="foot-note">今日摄入参考范围 ${kcalRange(totals)}。</p>` : ""}
+      ${goal === null ? `<div class="row spread"><p class="foot-note">周均按有饮食记录的日期计算。</p>${button("设置目标","nav",{style:"quiet compact",attrs:{view:"settings"}})}</div>` : `<p class="foot-note">周均按有饮食记录的日期计算。</p>`}
+    </section>
+    <section class="card">
+      ${titleBar("体重概览",button("记体重","weight-edit",{sym:"plus",style:"compact",attrs:{date:today}}),"scale")}
+      <div class="weight-overview">
+        <p class="small muted">最新体重</p>
+        <div class="big-value number">${fmt(weight.latest?.kg,2)} <span class="unit-label">kg</span></div>
+        <p class="small muted">${weight.latest ? `<time datetime="${weight.latest.date}">${weight.latest.date}</time> · ${weight.latest.time}` : "暂无称重记录"}</p>
+      </div>
+      <div class="kpi-grid">
+        ${stat("初始体重",fmt(profile.initialWeight,2),"kg")}
+        ${stat("目标体重",profile.goalWeight === null ? "未设置" : fmt(profile.goalWeight,2),profile.goalWeight === null ? "" : "kg")}
+        ${stat("累计变化",signed(weight.sinceInitial),"kg")}
+      </div>
+      <div class="row spread">
+        <p class="foot-note">近 7 天平均 ${weight.mean7 === null ? "—" : `${fmt(weight.mean7,2)} kg`}</p>
+        ${button("查看趋势","nav",{style:"quiet compact",attrs:{view:"trends"}})}
+      </div>
+    </section>
+    <section class="card">
+      ${titleBar("能量平衡",button("记运动","nav",{style:"compact",attrs:{view:"exercise",date:today}}),"bolt")}
+      ${energyCard(today,totals)}
+    </section>
+    <section class="card">
+      ${titleBar("今日饮食",button("饮食记录","nav",{style:"quiet compact",attrs:{view:"food",date:today}}),"book")}
+      <div class="meal-list">${mealKeys.map(key => {
+        const total = sumFood(entries.filter(entry => entry.meal === key));
+        return `<div class="meal-line">
+          <div class="row"><span class="meal-emblem">${icon(meals[key][1])}</span><strong class="small">${meals[key][0]}</strong></div>
+          <span class="small muted number">${total.count ? `${fmt(total.kcal)} <span class="unit-label">kcal</span>` : "—"}</span>
+          ${button("添加" + meals[key][0],"food-add",{sym:"plus",iconOnly:true,style:"quiet compact",attrs:{date:today,meal:key}})}
+        </div>`;
+      }).join("")}</div>
+    </section>
+  </div>`;
+}
+function energyCard(date, totals = sumFood(dayFood(date))) {
+  const value = dayEnergy(date);
+  const hasEstimate = value.estimate !== null;
+  const balance = totals.count && hasEstimate ? totals.kcal - value.estimate : null;
+  const detail = [
+    value.bmr === null ? "" : "基础代谢约 " + fmt(value.bmr) + " kcal",
+    value.workoutKcal === null ? "" : "运动净消耗约 " + fmt(value.workoutKcal) + " kcal",
+    value.overlap ? "已扣除重复步数 " + fmt(value.overlap) + " 步" : ""
+  ].filter(Boolean).join(" · ");
+  const ranges = [
+    hasEstimate ? "消耗参考范围 " + kcalRange(value) : "",
+    totals.count ? (totals.estimated ? "摄入参考范围 " + kcalRange(totals) : "摄入记录值 " + fmt(totals.kcal) + " kcal") : ""
+  ].filter(Boolean).join(" · ");
+  return `<div class="kpi-grid">
+    ${stat("当日步数",fmt(value.steps),"步",value.steps === null ? "待记录" : value.assumed ? "采用日常参考" : "已记录")}
+    ${stat("预计消耗",fmt(value.estimate),"kcal",hasEstimate ? "含基础代谢" : "待补充资料")}
+    ${stat("摄入 − 消耗",signed(balance,0),"kcal",!totals.count ? "暂无饮食记录" : hasEstimate ? "估算差值" : "暂无消耗估算")}
+  </div>
+  ${detail ? `<p class="foot-note">${detail}。</p>` : ""}
+  ${ranges ? `<p class="foot-note">${ranges}。</p>` : ""}
+  ${balance === null ? "" : `<p class="foot-note">能量差参考范围 ${signed(Math.floor(totals.low - value.high),0)} 至 ${signed(Math.ceil(totals.high - value.low),0)} kcal。</p>`}
+  ${hasEstimate ? "" : `<div style="margin-top:10px">${button("填写能量估算资料","nav",{style:"quiet compact",attrs:{view:"settings"}})}</div>`}`;
+}
+
+function foodView() {
+  const entries = dayFood(ui.date);
+  const totals = sumFood(entries);
+  return `${dayBar()}<div class="stack">
+    <section class="card">
+      ${titleBar("全天摄入",totals.estimated ? badge("估算","estimate") : "","meal")}
+      <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(100px,1fr))">
+        ${stat("热量",fmt(totals.kcal),"kcal")}
+        ${stat("蛋白质",fmt(totals.p,1),"g")}
+        ${stat("碳水化合物",fmt(totals.c,1),"g")}
+        ${stat("脂肪",fmt(totals.f,1),"g")}
+      </div>
+      ${totals.estimated ? `<p class="foot-note">当日热量参考范围 ${kcalRange(totals)}。</p>` : ""}
+      <div class="actions" style="margin-top:13px">
+        ${button("快速记录","quick",{style:"primary",sym:"plus"})}
+        ${button("复制餐食","copy-meal",{sym:"copy"})}
+        ${button("组合餐食","combos",{sym:"book"})}
+      </div>
+    </section>
+    ${mealKeys.map(meal => mealSection(meal,entries.filter(entry => entry.meal === meal))).join("")}
+  </div>`;
+}
+function mealSection(meal, entries) {
+  const totals = sumFood(entries);
+  return `<section class="card meal-card" id="meal-${meal}">
+    <header class="card-head">
+      <div class="row"><span class="meal-emblem">${icon(meals[meal][1])}</span><h2>${meals[meal][0]}</h2>
+        <span class="badge number">${fmt(totals.kcal)} kcal</span></div>
+      <div class="actions">${entries.length ? button("存为组合","combo-save",{style:"compact",attrs:{meal}}) : ""}
+      ${button("添加食物","food-add",{sym:"plus",style:"compact",attrs:{meal}})}</div>
+    </header>
+    ${entries.length ? `<p class="small muted" style="margin-bottom:9px">蛋白 ${fmt(totals.p,1)} g · 碳水 ${fmt(totals.c,1)} g · 脂肪 ${fmt(totals.f,1)} g</p>
+      ${entries.map(entry => foodEntry(entry)).join("")}` : empty("本餐暂无食物记录。")}
+  </section>`;
+}
+function foodEntry(entry, edit = true) {
+  const quality = entry.low === null ? "" : badge(entry.quality === "recipe" ? "菜品估算" : "估算","estimate");
+  const adjust = entry.basis && canAdjustOil(entry.basis) ? ` · ${oilLabels[entry.oil]}` : "";
+  return `<div class="entry">
+    <div class="entry-info"><div class="entry-title"><strong>${html(entry.name)}</strong>${quality}</div>
+      <p class="entry-details">${html(amountText(entry))}${adjust} · 蛋白 ${fmt(entry.p,1)} g · 碳水 ${fmt(entry.c,1)} g · 脂肪 ${fmt(entry.f,1)} g</p>
+      ${entry.low === null ? "" : `<p class="entry-details">参考范围 ${kcalRange(entry)}</p>`}${noteLine(entry.note)}
+    </div>
+    <div class="entry-right"><strong class="number">${intakeLabel(entry.kcal, entry.low !== null)}</strong>
+      ${edit ? button("编辑食物","food-edit",{sym:"edit",iconOnly:true,style:"quiet compact",attrs:{id:entry.id}}) +
+        button("删除食物","delete",{sym:"trash",iconOnly:true,style:"quiet compact danger",attrs:{type:"meal",id:entry.id}}) : ""}
+    </div>
+  </div>`;
+}
+function weightView() {
+  const stats = weightStats(ui.date);
+  const day = stats.day;
+  const history = sortWeights().reverse();
+  return `${dayBar()}<div class="stack">
+    <section class="card">
+      ${titleBar("当日测量",button(day ? "编辑体重" : "记体重","weight-edit",{sym:day ? "edit" : "plus",style:"primary",attrs:{date:ui.date}}),"scale")}
+      ${day ? `<div class="row spread align-start">
+        <div><div class="big-value number">${fmt(day.kg,2)} <span class="unit-label">kg</span></div>
+          <p class="foot-note">测量时间 ${day.time}${day.fat === null ? "" : ` · 体脂率 ${fmt(day.fat,2)}%`}</p>${noteLine(day.note)}</div>
+        ${button("删除体重","delete",{sym:"trash",style:"compact danger",attrs:{type:"weight",id:ui.date}})}</div>` :
+        empty(stats.latest ? `当天暂无记录。最近一次称重为 ${stats.latest.date} 的 ${fmt(stats.latest.kg,2)} kg。` : "当天暂无体重记录。")}
+      <div class="kpi-grid" style="margin-top:13px">
+        ${stat("较上次变化",signed(stats.sincePrevious),"kg")}
+        ${stat("较初始变化",signed(stats.sinceInitial),"kg")}
+        ${stat("较目标差值",signed(stats.goalDifference),"kg")}
+        ${stat("近 7 天均重",fmt(stats.mean7,2),"kg",stats.count7 ? `${stats.count7} 次测量` : "")}
+        ${stat("近 30 天变化",signed(stats.change30),"kg")}
+      </div>
+      <p class="foot-note">变化以截至所选日期的最近一次称重为准。30 天变化比较窗口内最早与最新两次测量。</p>
+    </section>
+    <section class="card">
+      ${titleBar("体重历史",button("导出 CSV","export",{sym:"download",style:"compact",attrs:{type:"weights"}}))}
+      ${history.length ? `<div class="table-wrap" tabindex="0" aria-label="体重历史表格"><table><thead>
+        <tr><th>日期</th><th>时间</th><th>体重 (kg)</th><th>体脂率</th><th>备注</th><th>操作</th></tr>
+        </thead><tbody>${history.slice(0,ui.weightLimit).map(weight => `<tr>
+          <td>${weight.date}</td><td>${weight.time}</td><td class="number">${fmt(weight.kg,2)}</td>
+          <td>${weight.fat === null ? "—" : fmt(weight.fat,2) + "%"}</td><td class="text-cell">${html(weight.note || "—")}</td>
+          <td>${button("编辑体重","weight-edit",{sym:"edit",iconOnly:true,style:"quiet compact",attrs:{date:weight.date}})}
+            ${button("删除体重","delete",{sym:"trash",iconOnly:true,style:"quiet compact danger",attrs:{type:"weight",id:weight.date}})}</td>
+        </tr>`).join("")}</tbody></table></div>` : empty("保存第一条体重记录后，历史会显示在这里。")}
+      ${history.length > ui.weightLimit ? button("显示更多","more",{style:"compact",attrs:{target:"weight"}}) : ""}
+    </section>
+  </div>`;
+}
+function exerciseView() {
+  const date = ui.date;
+  const steps = daySteps(date);
+  const exercise = daySports(date);
+  const energy = dayEnergy(date);
+  return `${dayBar()}<div class="grid two">
+    <section class="card full">${titleBar("当日摄入与消耗",badge("估算","estimate"),"bolt")}${energyCard(date)}</section>
+    <section class="card">
+      ${titleBar("步数",steps === null ? badge("待记录") : badge("已记录","green"),"steps")}
+      <form class="stack tight" data-form="steps">
+        ${numField("实际步数","count",steps,{min:0,max:150000,step:1,required:true,placeholder:data.profile.refSteps === null ? "输入当日总步数" : `未填时采用 ${fmt(data.profile.refSteps)} 步`})}
+        <p class="small muted">填写当天设备显示的总步数。若训练已计入总步数，在运动条目里标记即可。</p>
+        ${formError}<div class="actions">${submit("保存步数")}${steps === null ? "" : button("移除步数","delete",{style:"danger",attrs:{type:"steps",id:date}})}</div>
+      </form>
+    </section>
+    <section class="card">
+      ${titleBar("热量估算依据","", "trend")}
+      <p class="muted small">${energy.kg === null ? "可记录体重或填写初始体重，用于估算运动消耗。" : `截至 ${date} 的参考体重为 ${fmt(energy.kg,2)} kg。`}</p>
+      <p class="foot-note">${data.profile.refSteps === null ? "在个人设置填写日常步数后，步数会参与能量估算。" : `日常步数参考为 ${fmt(data.profile.refSteps)} 步。当天缺少步数时采用参考值，训练步数按计入方式去重。`}</p>
+      <p class="foot-note">消耗区间按估算值 ±20% 展示。实际误差会随活动方式、步幅和训练间歇而变化。</p>
+      <div style="margin-top:11px">${button("查看计算公式","nav",{style:"compact",attrs:{view:"settings",section:"metabolism"}})}</div>
+    </section>
+    <section class="card full">
+      ${titleBar("当日训练",`<div class="actions">
+        ${button("记有氧","exercise-edit",{style:"primary compact",sym:"plus",attrs:{kind:"aerobic"}})}
+        ${button("记力量 / 无氧","exercise-edit",{style:"compact",sym:"plus",attrs:{kind:"strength"}})}
+      </div>`,"steps")}
+      ${exercise.length ? exercise.map(sport => exerciseEntry(sport,energy.kg)).join("") : empty("当天暂无有氧或力量训练。")}
+    </section>
+  </div>`;
+}
+function exerciseEntry(sport, kg, edit = true) {
+  const i = intensity[sport.intensity][1];
+  const type = sports[sport.type];
+  const calories = workoutCalories(sport,kg);
+  const countText = sport.counted ? ` · 已计入步数${sport.sportSteps !== null ? `（${fmt(sport.sportSteps)} 步）` : `（约 ${fmt(Math.round(type.cadence[i] * sport.minutes))} 步）`}` : "";
+  return `<div class="entry">
+    <div class="entry-info"><div class="entry-title"><strong>${html(sportName(sport))}</strong>${badge(type.kind === "strength" ? "力量 / 无氧" : "有氧")}</div>
+      <p class="entry-details">${fmt(sport.minutes,1)} 分钟 · ${intensity[sport.intensity][0]}${countText}</p>${noteLine(sport.note)}
+    </div>
+    <div class="entry-right">
+      <strong>${calories === null ? "消耗待估算" : `约 ${fmt(calories)} kcal`}</strong>
+      ${edit ? button("编辑训练","exercise-edit",{sym:"edit",iconOnly:true,style:"quiet compact",attrs:{id:sport.id}}) +
+        button("删除训练","delete",{sym:"trash",iconOnly:true,style:"quiet compact danger",attrs:{type:"exercise",id:sport.id}}) : ""}
+    </div>
+  </div>`;
+}
+
+function activeDates() {
+  return [...new Set([...data.meals,...data.weights,...data.steps,...data.exercise].map(record => record.date))].sort();
+}
+function buildTrend() {
+  const today = localDay();
+  const dates = ui.trendRange === "all" ? activeDates() : null;
+  const start = dates?.length ? (dates[0] < today ? dates[0] : today) :
+    ui.trendRange === "all" ? today : shiftDay(today,1 - Number(ui.trendRange));
+  const end = dates?.at(-1) > today ? dates.at(-1) : today;
+  const mealsByDate = byDate(data.meals);
+  const sportsByDate = byDate(data.exercise);
+  const counts = new Map(data.steps.map(step => [step.date,step.count]));
+  const weights = sortWeights();
+  const weightMap = new Map(weights.map(weight => [weight.date,weight]));
+  const series = [];
+  let latestWeight = weights.filter(weight => weight.date < start).at(-1)?.kg ?? data.profile.initialWeight;
+  const windowWeights = weights.filter(weight => weight.date < start && weight.date >= shiftDay(start,-6));
+  for (let date = start; date <= end; date = shiftDay(date,1)) {
+    const measurement = weightMap.get(date);
+    if (measurement) {
+      latestWeight = measurement.kg;
+      windowWeights.push(measurement);
+    }
+    const earliest = shiftDay(date,-6);
+    while (windowWeights.length && windowWeights[0].date < earliest) windowWeights.shift();
+    const loggedFood = mealsByDate.get(date);
+    const total = loggedFood ? sumFood(loggedFood) : null;
+    const steps = counts.get(date) ?? null;
+    const workouts = sportsByDate.get(date) || [];
+    const energy = (total || steps !== null || workouts.length) ? energyEstimate(data.profile,latestWeight,steps,workouts) : null;
+    series.push({
+      date,label:shortDay(date),detail:date,kcal:total?.kcal ?? null,weight:measurement?.kg ?? null,
+      avgWeight:average(windowWeights.map(weight => weight.kg)),
+      weightDelta:measurement && data.profile.initialWeight !== null ? measurement.kg - data.profile.initialWeight : null,
+      goal:data.profile.kcalGoal, intakeLow:total?.low ?? null, intakeHigh:total?.high ?? null,
+      net:workouts.length ? energy.workoutKcal : null, expenditure:energy?.estimate ?? null,
+      expLow:energy?.low ?? null, expHigh:energy?.high ?? null,
+      balance:total && energy.estimate !== null ? total.kcal - energy.estimate : null,
+      steps, minutes:workouts.reduce((totalMinutes,sport) => totalMinutes + sport.minutes,0)
+    });
+  }
+  return {start,end,series};
+}
+function compactSeries(series, fields, limit = 160) {
+  if (series.length <= limit) return series;
+  const size = Math.ceil(series.length / limit);
+  const output = [];
+  for (let index = 0; index < series.length; index += size) {
+    const bucket = series.slice(index,index + size);
+    const first = bucket[0];
+    const last = bucket.at(-1);
+    const row = {date:first.date,label:first.label,detail:first.date === last.date ? first.date : `${first.date} 至 ${last.date}（区间均值）`};
+    for (const key of fields) row[key] = average(bucket.map(point => point[key]).filter(value => value !== null && value !== undefined));
+    output.push(row);
+  }
+  return output;
+}
+function periodStats(series, mode) {
+  const grouped = new Map();
+  for (const point of series) {
+    const weekday = dateObject(point.date).getDay();
+    const key = mode === "week" ? shiftDay(point.date,-((weekday + 6) % 7)) : point.date.slice(0,7);
+    if (!grouped.has(key)) grouped.set(key,[]);
+    if (point.kcal !== null) grouped.get(key).push(point.kcal);
+  }
+  return [...grouped].map(([period, values]) => ({
+    date:period,label:mode === "week" ? shortDay(period) : period.slice(2).replace("-","/"),
+    detail:mode === "week" ? `${period} 当周（${values.length} 天有记录）` : `${period}（${values.length} 天有记录）`,
+    mean:average(values)
+  }));
+}
+function scaleDomain(values, zero, floorPadding) {
+  let low = Infinity;
+  let high = -Infinity;
+  for (const value of values) {
+    if (value !== null && Number.isFinite(value)) {
+      low = Math.min(low,value);
+      high = Math.max(high,value);
+    }
+  }
+  if (!Number.isFinite(low)) return [0,1,.25];
+  if (zero) {
+    low = Math.min(0,low);
+    high = Math.max(0,high);
+  } else {
+    const padding = Math.max(floorPadding,(high - low) * .16);
+    low -= padding;
+    high += padding;
+  }
+  if (low === high) high = low + Math.max(1,floorPadding);
+  const approxStep = (high - low) / 4;
+  const magnitude = 10 ** Math.floor(Math.log10(approxStep));
+  const step = [1,2,2.5,5,10].find(part => part * magnitude >= approxStep) * magnitude;
+  return [round(Math.floor(low / step + 1e-8) * step,6),round(Math.ceil(high / step - 1e-8) * step,6),step];
+}
+const chartSeries = {
+  kcal:{key:"kcal", label:"摄入", unit:"kcal", color:"--carb", bar:true},
+  goal:{key:"goal", label:"热量目标", unit:"kcal", color:"--chart-two", dash:true},
+  weight:{key:"weight", label:"体重", unit:"kg", color:"--chart"},
+  avgWeight:{key:"avgWeight", label:"7 日移动均重", unit:"kg", color:"--chart-two", dash:true, breakGaps:true},
+  weightDelta:{key:"weightDelta", label:"较初始体重变化", unit:"kg", color:"--chart-three", right:true},
+  mean:{key:"mean", label:"日均摄入", unit:"kcal", color:"--chart"},
+  expenditure:{key:"expenditure", label:"预计消耗", unit:"kcal", color:"--chart-two", breakGaps:true},
+  steps:{key:"steps", label:"记录步数", unit:"步", color:"--chart", bar:true},
+  minutes:{key:"minutes", label:"训练时长", unit:"分钟", color:"--chart-three", right:true}
+};
+function svgChart(id, label, series, lines, {zero = false, emptyText = "当前时段暂无记录。"} = {}) {
+  const primary = lines.filter(line => !line.right);
+  const secondary = lines.filter(line => line.right);
+  const hasData = series.some(point => lines.some(line => line.key !== "goal" && point[line.key] !== null));
+  if (!hasData) return `<p class="empty chart-empty">${html(emptyText)}</p>`;
+  const w = 500;
+  const h = 191;
+  const left = 53;
+  const right = secondary.length ? 54 : 17;
+  const top = 27;
+  const bottom = 36;
+  const chartWidth = w - left - right;
+  const chartHeight = h - top - bottom;
+  const slot = chartWidth / series.length;
+  const x = index => round(left + (index + .5) * slot,2);
+  const [min,max,step] = scaleDomain(series.flatMap(point => primary.map(line => point[line.key])),zero,.2);
+  const [rightMin,rightMax] = scaleDomain(series.flatMap(point => secondary.map(line => point[line.key])),
+    secondary.some(line => line.unit !== "kg"),.15);
+  const ypos = (value, rightSide = false) => {
+    const low = rightSide ? rightMin : min;
+    const high = rightSide ? rightMax : max;
+    return round(top + (1 - (value - low) / (high - low)) * chartHeight,2);
+  };
+  const gridLines = [];
+  for (let value = min; value <= max + step * .01; value += step) {
+    const y = ypos(value);
+    gridLines.push(`<line class="gridline" x1="${left}" y1="${y}" x2="${w - right}" y2="${y}"/>
+      <text x="${left - 7}" y="${y + 4}" text-anchor="end">${fmt(round(value,3),2)}</text>
+      ${secondary.length ? `<text x="${w - right + 7}" y="${y + 4}">${fmt(rightMin + (value - min) / (max - min) * (rightMax - rightMin),2)}</text>` : ""}`);
+  }
+  const dateIndexes = new Set(Array.from({length:Math.min(series.length,5)},(_,index) =>
+    series.length <= 1 ? 0 : Math.round(index * (series.length - 1) / (Math.min(series.length,5) - 1))));
+  const dateMarks = [...dateIndexes].map(index => {
+    const position = cap(x(index),left + 12,w - right - 12);
+    return `<text x="${position}" y="${h - 13}" text-anchor="middle">${html(series[index].label)}</text>`;
+  }).join("");
+  const visible = lines.map(line => {
+    if (line.bar) {
+      const barWidth = Math.max(1,Math.min(27,slot * .65));
+      const zeroY = ypos(0,line.right);
+      return series.map((point,index) => {
+        const value = point[line.key];
+        if (value == null) return "";
+        const y = ypos(value,line.right);
+        return `<rect x="${round(x(index) - barWidth / 2,2)}" y="${value === 0 ? zeroY - 1 : y}" width="${barWidth}" height="${Math.max(1,zeroY - y)}" rx="${Math.min(3,barWidth / 5)}" fill="var(${line.color})" opacity=".76"/>`;
+      }).join("");
+    }
+    const path = [];
+    const markers = [];
+    let started = false;
+    series.forEach((point,index) => {
+      const value = point[line.key];
+      if (value === null) {
+        if (line.breakGaps) started = false;
+        return;
+      }
+      const y = ypos(value,line.right);
+      path.push(`${started ? "L" : "M"}${x(index)} ${y}`);
+      if (line.key !== "goal" || series.length === 1) {
+        const radius = series.length < 60 ? 3.15 : 1.8;
+        markers.push(`<circle class="graph-point" cx="${x(index)}" cy="${y}" r="${radius}" fill="var(${line.color})"/>`);
+      }
+      started = true;
+    });
+    return `<path class="graph-path" d="${path.join(" ")}" stroke="var(${line.color})"${line.dash ? ' stroke-dasharray="5 4"' : ""}/>
+      ${markers.join("")}`;
+  }).join("");
+  const last = series.findLastIndex(point => lines.some(line => line.key !== "goal" && point[line.key] !== null));
+  ui.charts.set(id,{series,lines,w,left,slot,active:last});
+  return `<div class="chart">
+    <div class="chart-legend">${lines.map(line => `<span>${swatch(line.color)}${line.label}${line.right ? "（右轴）" : ""}</span>`).join("")}</div>
+    <svg data-chart="${id}" viewBox="0 0 ${w} ${h}" tabindex="0" role="group" aria-label="${html(label)}，可点按图表或用左右方向键浏览数值" aria-describedby="chart-value-${id}">
+      <text x="${left - 7}" y="13" text-anchor="end">${html(primary[0]?.unit || "")}</text>
+      ${secondary.length ? `<text x="${w - right + 7}" y="13">${secondary[0].unit}</text>` : ""}
+      ${gridLines.join("")}${dateMarks}${visible}
+      <line id="chart-cross-${id}" class="cross" x1="${x(last)}" x2="${x(last)}" y1="${top}" y2="${h - bottom}"/>
+      <rect x="${left}" y="${top}" width="${chartWidth}" height="${chartHeight}" fill="transparent"/>
+    </svg>
+    <p id="chart-value-${id}" class="chart-readout">${chartReadout(id,last)}</p>
+  </div>`;
+}
+function chartReadout(id,index) {
+  const model = ui.charts.get(id);
+  const point = model.series[index];
+  const values = model.lines.filter(line => point[line.key] !== null && point[line.key] !== undefined).map(line =>
+    `${line.label} ${fmt(point[line.key],line.unit === "kg" ? 2 : 0)} ${line.unit}`);
+  if (id === "energy" && point.expenditure !== null) {
+    if (point.kcal !== null) values.push(`净差 ${signed(point.balance,0)} kcal`);
+    if (point.intakeLow !== null && point.intakeLow !== point.intakeHigh) {
+      values.push(`摄入范围 ${kcalRange({low:point.intakeLow,high:point.intakeHigh})}`);
+    }
+    if (point.expLow !== null) values.push(`消耗范围 ${kcalRange({low:point.expLow,high:point.expHigh})}`);
+  }
+  return `${html(point.detail)} · ${values.length ? values.join(" · ") : "无记录"}`;
+}
+function setChartIndex(id,index) {
+  const model = ui.charts.get(id);
+  if (!model) return;
+  const next = cap(index,0,model.series.length - 1);
+  if (next === model.active) return;
+  model.active = next;
+  el("chart-value-" + id).innerHTML = chartReadout(id,next);
+  const cross = el("chart-cross-" + id);
+  const x = round(model.left + (next + .5) * model.slot,2);
+  cross.setAttribute("x1",x);
+  cross.setAttribute("x2",x);
+}
+function macroChart(totals) {
+  const energies = {c:totals.c * 4,p:totals.p * 4,f:totals.f * 9};
+  const total = energies.c + energies.p + energies.f;
+  if (total === 0) return `<p class="empty chart-empty">当前时段暂无可计算比例的营养数据。</p>`;
+  let offset = 0;
+  const circles = macroKeys.map(key => {
+    const percent = energies[key] / total * 100;
+    const currentOffset = offset;
+    offset += percent;
+    return percent ? `<circle class="macro-segment" data-action="macro-select" data-key="${key}" cx="65" cy="65" r="52" fill="none" stroke="var(${macros[key][1]})"
+      stroke-width="12" pathLength="100" stroke-dasharray="${round(percent,5)} 100" stroke-dashoffset="-${round(currentOffset,5)}"
+      transform="rotate(-90 65 65)"><title>${macros[key][0]} ${fmt(percent,1)}%</title></circle>` : "";
+  }).join("");
+  return `<div class="energy-overview" id="macroChart">
+    <div class="ring"><svg viewBox="0 0 130 130" role="img" aria-label="三大营养素供能占比">${circles}</svg>
+      <div class="ring-copy" aria-live="polite"><strong>100%</strong><small>营养供能</small></div></div>
+    <div class="stack tight">${macroKeys.map(key => {
+      const percent = fmt(energies[key] / total * 100,1) + "%";
+      return `<button type="button" class="btn quiet compact spread macro-key" data-action="macro-select" data-key="${key}" data-percent="${percent}" aria-pressed="false">
+        <span class="macro-name">${swatch(macros[key][1])}${macros[key][0]}</span><strong class="small number">${percent}</strong></button>`;
+    }).join("")}
+      <p class="small muted">合计 ${fmt(totals.c,1)} g 碳水 · ${fmt(totals.p,1)} g 蛋白 · ${fmt(totals.f,1)} g 脂肪</p>
+    </div></div>`;
+}
+function selectMacro(key) {
+  const chart = el("macroChart");
+  const buttons = $$(".macro-key",chart);
+  const current = buttons.find(button => button.dataset.key === key);
+  if (!current) return;
+  const select = current.getAttribute("aria-pressed") !== "true";
+  for (const button of buttons) button.setAttribute("aria-pressed",String(select && current === button));
+  for (const segment of $$(".macro-segment",chart)) segment.style.opacity = !select || segment.dataset.key === key ? "1" : ".25";
+  $(".ring-copy strong",chart).textContent = select ? current.dataset.percent : "100%";
+  $(".ring-copy small",chart).textContent = select ? macros[key][0] : "营养供能";
+}
+function trendsView() {
+  const {start,end,series} = buildTrend();
+  const displayed = compactSeries(series,["kcal","goal","weight","avgWeight","weightDelta","expenditure","intakeLow","intakeHigh","expLow","expHigh","balance","steps","minutes"]);
+  const intake = sumFood(data.meals.filter(entry => entry.date >= start && entry.date <= end));
+  const period = compactSeries(periodStats(series,ui.trendGroup),["mean"]);
+  const target = data.profile.kcalGoal ? [chartSeries.goal] : [];
+  const totalMinutes = series.reduce((total,point) => total + point.minutes,0);
+  const estimatedWorkouts = series.filter(point => point.net !== null);
+  const totalNet = estimatedWorkouts.length ? estimatedWorkouts.reduce((total,point) => total + point.net,0) : null;
+  const meanSteps = average(series.map(point => point.steps).filter(value => value !== null));
+  const condensed = displayed.length < series.length;
+  const stepsSeries = displayed.map(row => ({...row,minutes:row.minutes > 0 ? row.minutes : null}));
+  return `<div class="stack">
+    <div class="row wrap spread">
+      ${seg([["7","近 7 天"],["30","近 30 天"],["90","近 90 天"],["all","全部时间"]],ui.trendRange,"trend-range")}
+      <span class="small muted number">${start} 至 ${end}</span>
+    </div>
+    ${condensed ? `<p class="callout">较长时间段按相邻日期的记录均值显示。日明细在历史日历查看。</p>` : ""}
+    <div class="grid two">
+      <section class="card">${titleBar("体重与 7 日移动均重","", "scale")}
+        ${svgChart("weight","体重与移动均重",displayed,[chartSeries.weight,chartSeries.avgWeight])}
+        <p class="foot-note">移动均重采用截至当天最近 7 个自然日内的实际测量。</p></section>
+      <section class="card">${titleBar("每日热量摄入与目标","", "meal")}
+        ${svgChart("kcal","每日热量摄入与目标",displayed,[chartSeries.kcal,...target],{zero:true})}
+        <p class="foot-note">${target.length ? "目标线使用当前个人设置中的每日热量目标。" : "可在个人设置添加热量目标。"}缺少饮食记录的日期留空。</p></section>
+      <section class="card">${titleBar("营养摄入比例","", "plate")}${macroChart(intake)}
+        <p class="foot-note">按供能估算，碳水及蛋白按 4 kcal/g，脂肪按 9 kcal/g。</p></section>
+      <section class="card">${titleBar("平均热量趋势",seg([["week","每周"],["month","每月"]],ui.trendGroup,"trend-group"))}
+        ${svgChart("means","分期平均热量",period,[chartSeries.mean],{zero:true})}
+        <p class="foot-note">每周从周一开始。日均只计入所选范围内有饮食记录的天数。</p></section>
+      <section class="card">${titleBar("摄入与体重变化","", "trend")}
+        ${svgChart("compare","摄入与体重变化对比",displayed,[chartSeries.kcal,chartSeries.weightDelta],{zero:true})}
+        <p class="foot-note">${data.profile.initialWeight === null ? "填写初始体重后可对比体重变化。" : "体重差以设置中的初始体重为基准，两条轴使用各自的单位。"}</p></section>
+      <section class="card">${titleBar("摄入与能量消耗",badge("估算","estimate"),"bolt")}
+        ${svgChart("energy","摄入与预计消耗",displayed,[chartSeries.kcal,chartSeries.expenditure],{zero:true})}
+        <p class="foot-note">补充个人资料后可查看消耗估算。点按图表中的日期可查看数值。</p></section>
+      <section class="card full">${titleBar("步数与训练","", "steps")}
+        <div class="kpi-grid">
+          ${stat("已记录日均步数",fmt(meanSteps),"步")}
+          ${stat("训练总时长",fmt(totalMinutes,1),"分钟")}
+          ${stat("训练净消耗估算",fmt(totalNet),"kcal")}
+        </div>
+        <div style="margin-top:12px">${svgChart("steps","步数与训练趋势",stepsSeries,[chartSeries.steps,chartSeries.minutes],{zero:true})}</div>
+      </section>
+    </div>
+  </div>`;
+}
+
+const calendarColors = {food:"--carb",weight:"--chart-three",activity:"--chart-two"};
+function calendarView() {
+  const month = ui.calMonth;
+  const first = month + "-01";
+  const weekdayOffset = (dateObject(first).getDay() + 6) % 7;
+  const lastOfMonth = new Date(dateObject(first).getFullYear(),dateObject(first).getMonth() + 1,0).getDate();
+  const visibleDays = Math.ceil((weekdayOffset + lastOfMonth) / 7) * 7;
+  const mealDays = new Set(data.meals.map(entry => entry.date));
+  const weightDays = new Set(data.weights.map(entry => entry.date));
+  const activityDays = new Set([...data.exercise,...data.steps].map(entry => entry.date));
+  const today = localDay();
+  const cells = Array.from({length:visibleDays},(_,index) => {
+    const date = shiftDay(first,index - weekdayOffset);
+    if (!isDay(date)) return '<span aria-hidden="true"></span>';
+    const marks = [["饮食",mealDays.has(date),calendarColors.food],["体重",weightDays.has(date),calendarColors.weight],
+      ["运动或步数",activityDays.has(date),calendarColors.activity]].filter(mark => mark[1]);
+    return `<button type="button" class="day-cell ${date.slice(0,7) === month ? "" : "out"} ${date === today ? "today" : ""}" data-action="calendar-date"
+      data-date="${date}" aria-label="${date}${marks.length ? "，有" + marks.map(mark => mark[0]).join("、") + "记录" : ""}" aria-pressed="${ui.date === date}"${date === today ? ' aria-current="date"' : ""}>
+      <span>${Number(date.slice(8))}</span><span class="dots">${marks.map(mark => swatch(mark[2])).join("")}</span></button>`;
+  }).join("");
+  return `<div class="grid two">
+    <section class="card">
+      ${titleBar("月历",button("本月","cal-today",{style:"compact",disabled:month === today.slice(0,7) && ui.date === today}),"calendar")}
+      <div class="row cal-toolbar" style="margin-bottom:13px">
+        ${button("上个月","cal-step",{sym:"left",iconOnly:true,style:"compact",attrs:{offset:-1},disabled:month === MIN_DAY.slice(0,7)})}
+        <input type="month" aria-label="日历月份" data-control="calendar-month" min="${MIN_DAY.slice(0,7)}" max="${MAX_DAY.slice(0,7)}" value="${month}">
+        ${button("下个月","cal-step",{sym:"right",iconOnly:true,style:"compact",attrs:{offset:1},disabled:month === MAX_DAY.slice(0,7)})}
+      </div>
+      <div class="calendar-head" aria-hidden="true">${[..."一二三四五六日"].map(day => `<span>${day}</span>`).join("")}</div>
+      <div class="cal-grid">${cells}</div>
+      <div class="chart-legend" style="margin-top:10px"><span>${swatch(calendarColors.food)} 饮食</span><span>${swatch(calendarColors.weight)} 体重</span><span>${swatch(calendarColors.activity)} 步数 / 训练</span></div>
+    </section>
+    <section class="card">
+      ${titleBar("当日记录","", "book")}
+      <p class="muted small" style="margin-bottom:11px">${fullDay.format(dateObject(ui.date))}</p>
+      ${calendarDaySummary(ui.date)}
+    </section>
+    <section class="card full">
+      ${titleBar("查找历史记录")}
+      <div class="form-grid three" style="margin-bottom:12px">
+        ${field("搜索",`<input type="search" name="historyQuery" value="${html(ui.hxQuery)}" placeholder="食物、训练或备注" data-control="history-query" maxlength="100">`)}
+        ${field("起始日期",dateField("historyFrom",ui.hxStart,'data-control="history-from"'))}
+        ${field("结束日期",dateField("historyTo",ui.hxEnd,'data-control="history-to"'))}
+      </div>
+      <div id="historyResults">${historyResults()}</div>
+    </section>
+  </div>`;
+}
+function calendarDaySummary(date) {
+  const foods = dayFood(date);
+  const totals = sumFood(foods);
+  const weight = data.weights.find(weight => weight.date === date);
+  const sports = daySports(date);
+  const steps = daySteps(date);
+  const energy = dayEnergy(date);
+  return `<div class="stack tight">
+    <div class="row spread"><strong class="small">饮食 · ${foods.length ? `${fmt(totals.kcal)} kcal` : "暂无记录"}</strong>
+      ${button(foods.length ? "编辑饮食" : "补录饮食","nav",{style:"compact",attrs:{view:"food",date}})}</div>
+    ${foods.length ? `<p class="small muted">${html(mealKeys.map(meal => {
+      const entries = foods.filter(food => food.meal === meal);
+      return entries.length ? meals[meal][0] + " " + entries.map(food => food.name).join("、") : "";
+    }).filter(Boolean).join(" · "))}</p>` : ""}
+    <div class="row spread"><strong class="small">体重 · ${weight ? fmt(weight.kg,2) + " kg" : "暂无记录"}</strong>
+      ${button(weight ? "编辑体重" : "补录体重","weight-edit",{style:"compact",attrs:{date}})}</div>
+    ${weight ? `<p class="small muted">${weight.time}${weight.fat === null ? "" : ` · 体脂率 ${fmt(weight.fat,2)}%`}</p>${noteLine(weight.note)}` : ""}
+    <div class="row spread"><strong class="small">步数 / 训练 · ${steps !== null ? fmt(steps) + " 步" :
+      energy.steps === null ? "暂无步数" : "日常参考 " + fmt(energy.steps) + " 步"}</strong>
+      ${button(steps !== null || sports.length ? "编辑运动" : "补录运动","nav",{style:"compact",attrs:{view:"exercise",date}})}</div>
+    ${sports.length ? sports.map(sport => exerciseEntry(sport,energy.kg,false)).join("") : ""}
+    ${energy.estimate !== null && (foods.length || sports.length || steps !== null) ?
+      `<p class="foot-note">预计消耗 ${fmt(energy.estimate)} kcal · 参考范围 ${kcalRange(energy)}。</p>` : ""}
+  </div>`;
+}
+function historyResults() {
+  if (ui.hxStart && ui.hxEnd && ui.hxStart > ui.hxEnd) return `<p class="callout error">结束日期须在起始日期当天或之后。</p>`;
+  const foods = byDate(data.meals);
+  const workout = byDate(data.exercise);
+  const weight = new Map(data.weights.map(item => [item.date,item]));
+  const steps = new Map(data.steps.map(item => [item.date,item.count]));
+  const query = normalize(ui.hxQuery);
+  const rows = activeDates().reverse().filter(date => (!ui.hxStart || date >= ui.hxStart) && (!ui.hxEnd || date <= ui.hxEnd))
+    .map(date => ({date, foods:foods.get(date) || [], weight:weight.get(date), workout:workout.get(date) || [], steps:steps.get(date)}))
+    .filter(row => {
+      if (!query) return true;
+      const matches = [row.date,row.weight?.note,...row.foods.flatMap(food => [food.name,food.note,meals[food.meal][0]]),
+        ...row.workout.flatMap(sport => [sportName(sport),sport.note])];
+      return matches.some(text => normalize(text).includes(query));
+    });
+  if (!rows.length) return empty("没有符合条件的历史记录。");
+  return `<div class="table-wrap" tabindex="0" aria-label="历史查询结果"><table><thead><tr><th>日期</th><th>饮食</th><th>热量</th><th>体重</th><th>步数</th><th>训练</th><th>操作</th></tr></thead>
+    <tbody>${rows.slice(0,ui.hxLimit).map(row => `<tr>
+      <td>${row.date}</td><td class="text-cell">${html(row.foods.map(food => food.name).join("、") || "—")}</td>
+      <td>${row.foods.length ? fmt(sumFood(row.foods).kcal) + " kcal" : "—"}</td>
+      <td>${row.weight ? fmt(row.weight.kg,2) + " kg" : "—"}</td>
+      <td>${fmt(row.steps)}</td><td class="text-cell">${html(row.workout.map(sport => sportName(sport) + " " + fmt(sport.minutes,1) + " 分钟").join("、") || "—")}</td>
+      <td>${button("查看日期","calendar-date",{style:"compact",attrs:{date:row.date,scroll:"yes"}})}</td></tr>`).join("")}</tbody></table></div>
+    <p class="foot-note">共 ${rows.length} 天记录。</p>
+    ${rows.length > ui.hxLimit ? button("显示更多","more",{style:"compact",attrs:{target:"history"}}) : ""}`;
+}
+
+function libraryView() {
+  return `<div class="stack">
+    <section class="card">
+      ${titleBar("浏览食物",button("新建自定义食物","custom-edit",{sym:"plus",style:"primary"}),"book")}
+      <div class="filters">
+        ${field("搜索食物",`<input type="search" value="${html(ui.dbQuery)}" placeholder="例如 宫保鸡丁、米饭、奶茶" data-control="library-query" maxlength="100">`)}
+        ${field("食物分类",`<select data-control="library-group">${option("","全部分类",ui.dbGroup)}${groups.map(group => option(group,group,ui.dbGroup)).join("")}</select>`)}
+        ${field("范围",`<select data-control="library-filter">
+          ${option("all","全部食物",ui.dbFilter)}${option("favorites","我的收藏",ui.dbFilter)}${option("custom","自定义",ui.dbFilter)}</select>`)}
+      </div>
+      <p class="foot-note">食堂和外卖菜品按常见配方估算，具体以店家用料为准。打开食物可查看状态、来源和份量。</p>
+      <div id="libraryResults" style="margin-top:13px">${libraryResults()}</div>
+    </section>
+  </div>`;
+}
+function libraryResults() {
+  const filtered = allFoods().filter(food => (!ui.dbGroup || food.group === ui.dbGroup) &&
+    (ui.dbFilter !== "favorites" || data.favorites.includes(food.id)) &&
+    (ui.dbFilter !== "custom" || food.group === "自定义"));
+  const result = findFoods(ui.dbQuery,filtered);
+  if (!result.length) return empty("没有匹配的食物。可更换关键词，或新建自定义食物。");
+  return `<div class="food-grid">${result.slice(0,ui.dbLimit).map(food => {
+    const favorite = data.favorites.includes(food.id);
+    return `<article class="food-card">
+      <div class="row spread align-start"><div class="entry-title"><h3>${html(food.name)}</h3></div>
+        ${button(favorite ? "取消收藏 " + food.name : "收藏 " + food.name,"favorite",{sym:"star",iconOnly:true,style:"compact",pressed:favorite,attrs:{id:food.id}})}</div>
+      <div class="wrap">${badge(food.group)}${badge(qualityLabels[food.quality],food.quality === "recipe" || food.quality === "userEstimate" ? "estimate" : "")}</div>
+      <p class="small muted"><strong class="number">${fmt(food.kcal,1)} kcal</strong> / 100 g · ${html(food.state)}</p>
+      <div class="actions">
+        ${button("详情与份量","food-detail",{style:"compact",attrs:{id:food.id}})}
+        ${button("记入饮食","food-add",{style:"compact quiet",attrs:{id:food.id}})}
+      </div>
+    </article>`;
+  }).join("")}</div><p class="foot-note">找到 ${result.length} 种食物${result.length > ui.dbLimit ? `，已显示前 ${ui.dbLimit} 种` : ""}。</p>
+    ${result.length > ui.dbLimit ? button("显示更多","more",{style:"compact",attrs:{target:"library"}}) : ""}`;
+}
+
+function backupDue() {
+  const anchor = data.backupAt || data.firstSavedAt;
+  const hasRecords = activeDates().length > 0 || data.foods.length || data.combos.length || data.favorites.length;
+  return Boolean(anchor && hasRecords && Date.now() - new Date(anchor).getTime() >= 14 * 86400000);
+}
+function settingsView() {
+  const p = data.profile;
+  const weight = weightStats(localDay()).latest;
+  const info = metabolism(p,weight?.kg ?? p.initialWeight);
+  const tdee = dayEnergy(localDay());
+  return `<div class="stack">
+    <section class="card">
+      ${titleBar("个人资料与目标","", "settings")}
+      <form class="stack" data-form="profile">
+        <p class="small muted">可直接记餐、称重或记录运动。估算每日消耗时，可填写年龄、性别、身高、日常活动水平和初始体重，也可使用已有的体重记录。</p>
+        <div class="form-grid three">
+          ${numField("年龄","age",p.age,{min:18,max:120,step:1,placeholder:"选填"})}
+          ${field("公式采用的性别",`<select name="sex">${option("","请选择",p.sex ?? "")}${option("female","女性",p.sex)}${option("male","男性",p.sex)}</select>`)}
+          ${numField("身高（cm）","height",p.height,{min:80,max:250,placeholder:"选填"})}
+          ${numField("初始体重（kg）","initialWeight",p.initialWeight,{min:15,max:650,placeholder:"选填"})}
+          ${numField("目标体重（kg）","goalWeight",p.goalWeight,{min:15,max:650,placeholder:"选填"})}
+          ${field("日常活动水平",`<select name="activity">${option("","请选择",p.activity ?? "")}${Object.entries(activities).map(([value,[name,factor]]) => option(value,`${name} · ×${factor}`,p.activity)).join("")}</select>`)}
+          ${numField("日常平均步数","refSteps",p.refSteps,{min:0,max:150000,step:1,placeholder:"选填"})}
+          ${numField("初始 BMR 参考（kcal）","refBmr",p.refBmr,{min:300,max:9500,placeholder:"留空使用公式"})}
+          ${numField("日常 TDEE 参考（kcal）","refTdee",p.refTdee,{min:300,max:15000,placeholder:"留空使用活动系数"})}
+        </div>
+        <p class="small muted">日常 TDEE 参考值应包含上面填写的日常步数。填写个人参考值时优先用它作为能量消耗基线。</p>
+        <div class="form-grid four">
+          ${numField("热量目标（kcal）","kcalGoal",p.kcalGoal,{min:1,max:12000,placeholder:"选填"})}
+          ${numField("蛋白目标（g）","pGoal",p.pGoal,{min:1,max:1500,placeholder:"选填"})}
+          ${numField("碳水目标（g）","cGoal",p.cGoal,{min:1,max:1500,placeholder:"选填"})}
+          ${numField("脂肪目标（g）","fGoal",p.fGoal,{min:1,max:1500,placeholder:"选填"})}
+        </div>
+        ${formError}<div class="actions">${submit("保存个人设置")}</div>
+      </form>
+    </section>
+    <section class="card" id="metabolism">
+      ${titleBar("能量计算与公式",badge("参考估算","estimate"),"bolt")}
+      <div class="kpi-grid">
+        ${stat("BMI",fmt(info.bmi,1),"",info.bmi === null ? "需身高和体重" : weight ? "按最新体重" : "按初始体重")}
+        ${stat("当前 BMR",fmt(info.bmr),"kcal",info.standard === null ? "" : "公式值 " + fmt(info.standard) + " kcal")}
+        ${stat("今日 TDEE",fmt(tdee.estimate),"kcal",tdee.estimate === null ? "待补充资料" : tdee.assumed ? "步数采用日常参考" : "")}
+      </div>
+      <details style="margin-top:12px">
+        <summary>计算方法和数据来源</summary>
+        <div class="stack tight small muted" style="margin-top:9px">
+          <p>BMI = 体重（kg）÷ 身高（m）的平方。</p>
+          <p>Mifflin–St Jeor 公式 = 10 × 体重（kg）+ 6.25 × 身高（cm）− 5 × 年龄，女性再减 161，男性再加 5。填写个人初始 BMR 时，按当前与初始体重的差值调整参考值，每千克约 10 kcal。${link("公式文献",refs.mifflin)}</p>
+          <p>填了日常 TDEE 参考值时，将它与初始 BMR 的差值作为日常活动基线。留空时采用当前 BMR × 活动系数作为总消耗基线。日常活动基线最低为零，日总消耗最低为当前 BMR。</p>
+          <p>运动净消耗 ≈（MET − 1）× 体重（kg）× 小时数。强度档位采用同类运动的近似 MET。${link("2024 运动 MET 汇编",refs.met)}</p>
+          <p>步行热量调整 ≈ （当日总步数 − 已计入总步数的运动步数 − 日常平均步数）× 体重（kg）× 0.0005。训练步数先按实际步数或参考步频扣除，再叠加运动净消耗。填写日常平均步数后应用此项调整。</p>
+          <p>每日 TDEE = 当前 BMR + 日常活动基线 + 步行热量调整 + 运动净消耗。消耗参考范围取估算值的 80%–120%。历史估算采用所选日期或之前的最新体重，以及当前公式设置。</p>
+          <p>食物成分核对资料（需联网） · ${link("中国食物营养成分查询平台",refs.china)} · ${link("USDA FoodData Central",refs.usda)}</p>
+        </div>
+      </details>
+    </section>
+    <section class="card">
+      ${titleBar("常用份量","", "bowl")}
+      <form class="stack tight" data-form="preferences">
+        <div class="form-grid">
+          ${numField("常用饭碗（熟米饭 g）","bowl",data.settings.bowl,{min:1,max:2000,required:true})}
+          ${numField("常用饮水杯（mL）","cup",data.settings.cup,{min:1,max:2000,required:true})}
+        </div>
+        <p class="small muted">适用于内置米饭和倒入自用杯的饮品。现制咖啡、奶茶按常见售卖杯估算，每种食物的换算也可单独保存。</p>
+        ${formError}<div class="actions">
+          ${submit("保存碗杯容量")}
+          ${data.servings.length || data.usual.length ? button("管理食物份量","servings-manage") : ""}
+        </div>
+      </form>
+    </section>
+    <section class="card">
+      ${titleBar("资料备份","", "download")}
+      <div class="stack tight">
+        <p class="small muted">最近保存 ${storageMode === "ready" && data.savedAt ? `<time datetime="${html(data.savedAt)}">${new Date(data.savedAt).toLocaleString("zh-CN",{hour12:false})}</time>` : "—"}</p>
+        <p class="small muted">最近导出 JSON ${data.backupAt ? `<time datetime="${html(data.backupAt)}">${new Date(data.backupAt).toLocaleString("zh-CN",{hour12:false})}</time>` : "—"}</p>
+        <p class="callout ${backupDue() ? "warn" : ""}">建议每 14 天导出一次 JSON。清理浏览器数据、换浏览器或移动 HTML 文件时，可从 JSON 恢复全部记录。</p>
+        <div class="actions">
+          ${button("导出全部 JSON","export",{sym:"download",style:"primary",attrs:{type:"json"}})}
+          ${button("导入 JSON","import",{sym:"upload"})}
+          ${button("饮食 CSV","export",{attrs:{type:"meals"}})}
+          ${button("体重 CSV","export",{attrs:{type:"weights"}})}
+          ${button("运动与步数 CSV","export",{attrs:{type:"exercise"}})}
+          ${button("每日能量 CSV","export",{attrs:{type:"energy"}})}
+          ${button("清空数据","clear",{sym:"trash",style:"danger"})}
+        </div>
+      </div>
+    </section>
+  </div>`;
+}
+
+function openModal(title, content, {cancel = null, focus = ""} = {}) {
+  const dialog = el("modal");
+  if (!dialog.open) ui.dialogTrigger = document.activeElement;
+  ui.dialogCancel = cancel;
+  dialog.innerHTML = `<header class="modal-head"><h2 id="modalTitle">${html(title)}</h2>
+    ${button("关闭窗口","close",{sym:"close",iconOnly:true,style:"quiet compact"})}</header>
+    <div class="modal-content">${content}</div>`;
+  if (!dialog.open) dialog.showModal();
+  dialog.scrollTop = 0;
+  const target = focus ? $(focus,dialog) : null;
+  (target || $(".modal-head button",dialog))?.focus({preventScroll:true});
+}
+function closeModal() {
+  ui.dialogCancel = null;
+  el("modal").close();
+  ui.dialogTrigger?.focus({preventScroll:true});
+  ui.dialogTrigger = null;
+}
+function cancelModal() {
+  const goBack = ui.dialogCancel;
+  if (goBack) goBack();
+  else closeModal();
+}
+function savedMessage(message) {
+  closeModalIfOpen();
+  render();
+  notify(storageMode === "memory" ? message + "（仅保存在当前页面，请导出备份）" : message);
+}
+function closeModalIfOpen() {
+  if (el("modal").open) closeModal();
+}
+el("modal").addEventListener("cancel", event => {
+  event.preventDefault();
+  cancelModal();
+});
+function foodResults(text, action = "pick-food") {
+  if (!normalize(text)) return "";
+  const result = findFoods(text).slice(0,10);
+  if (!result.length) return `<p class="empty">没有匹配食物。可新建自定义食物或手填本次食用量的营养。</p>`;
+  return `<div class="food-options">${result.map(food => `<button type="button" class="food-option" data-action="${action}" data-id="${html(food.id)}">
+    <span><strong>${html(food.name)}</strong><br><span class="muted">${html(food.state)}</span></span>
+    <small>${fmt(food.kcal,1)} kcal / 100 g${food.quality === "recipe" ? "<br>配方估算" : ""}</small></button>`).join("")}</div>`;
+}
+function shortcutFoods() {
+  const popular = ["米饭","宫保鸡丁","清炒青菜","水煮鸡蛋","纯牛奶"].map(name => getFood("b:" + name));
+  const foods = [...data.favorites.map(getFood),...recentFoods(),...popular].filter(Boolean);
+  return [...new Map(foods.map(food => [food.id,food])).values()].slice(0,9);
+}
+function openFoodEditor({date = ui.date, meal = selectedMeal(), entry = null, food = null, quickIndex = null, search = "", parsed = null} = {}) {
+  const linkedFood = entry?.foodId ? getFood(entry.foodId) : null;
+  const archived = entry?.basis && !linkedFood ?
+    {id:entry.foodId || "archived",name:entry.name,base:entry.unitGrams || 100,density:1,state:"历史记录",
+     source:"本条记录保存的营养数据",...entry.basis} : null;
+  const selected = food || linkedFood || archived;
+  const option = selected ? defaultPortion(selected) : null;
+  const mode = entry ? (entry.basis ? (entry.unit === "g" ? "exact" : "portion") : "manual") : "portion";
+  ui.editor = {
+    date:entry?.date || date, meal:entry?.meal || meal, entryId:entry?.id || null,
+    name:entry?.name || selected?.name || "", food:selected, basis:entry?.basis || (selected ? nutrientBasis(selected) : null),
+    amount:mode === "portion" ? entry?.amount ?? option?.amount ?? 1 : option?.amount ?? 1,
+    unit:mode === "portion" ? entry?.unit || option?.unit || "" : option?.unit || "",
+    unitGrams:mode === "portion" ? entry?.unitGrams ?? option?.grams ?? null : option?.grams ?? null,
+    exact:entry?.grams ?? 100, oil:entry?.oil || "normal", note:entry?.note || "",
+    mode, quickIndex, search, parsed, remember:false, manual:entry && !entry.basis ? {
+      name:entry.name,amount:entry.amount,unit:entry.unit,grams:entry.grams,estimate:entry.quality === "userEstimate",
+      kcal:entry.kcal,p:entry.p,c:entry.c,f:entry.f
+    } : null
+  };
+  if (selected && !entry && parsed) applyParsedPortion(ui.editor,selected,parsed);
+  showFoodEditor();
+}
+function showFoodEditor() {
+  const editor = ui.editor;
+  const inReview = editor.quickIndex !== null;
+  const cancel = inReview ? () => {
+    const item = ui.quick.items[editor.quickIndex];
+    if (item && !item.raw && !item.entry) ui.quick.items.splice(editor.quickIndex,1);
+    showQuickDialog();
+  } : null;
+  openModal(inReview ? "确认食物与份量" : editor.entryId ? "编辑饮食记录" : "添加食物", `<form class="stack" data-form="food-editor">
+    ${inReview ? `<p class="small muted">${editor.date} · ${meals[editor.meal][0]}</p>` : `<div class="form-grid">
+      ${field("日期",dateField("recordDate",editor.date,"required"))}
+      ${field("餐别",`<select name="meal">${mealOptions(editor.meal)}</select>`)}
+    </div>`}
+    <div id="editorMode">${editorModeButtons()}</div>
+    <div id="editorBody">${editorBody()}</div>
+    ${noteField(editor.note)}
+    ${modalFooter(inReview ? "确认此项" : editor.entryId ? "保存修改" : "添加到本餐",inReview ? "返回复核" : "取消")}
+    </form>`, {cancel, focus:editor.food ? "" : '[name="foodSearch"]'});
+}
+function editorModeButtons() {
+  return seg([["portion","份量估算"],["exact","精确克数"],["manual","手填营养"]],ui.editor.mode,"food-mode");
+}
+function editorBody() {
+  const editor = ui.editor;
+  if (editor.mode === "manual") {
+    const manual = editor.manual;
+    return `<div class="stack tight">
+      ${textField("食物名称","manualName",manual.name,{required:true,placeholder:"输入食物名称"})}
+      <div class="form-grid three">
+        ${numField("数量","manualAmount",manual.amount,{min:.001,max:10000,required:true})}
+        ${textField("单位","manualUnit",manual.unit,{max:12,required:true,placeholder:"份、碗、g 等"})}
+        ${numField("总重量（g，选填）","manualGrams",manual.grams,{min:.001,max:10000})}
+      </div>
+      <p class="small muted">下方填写本次食用总量对应的营养数值。每 100 g 数值可通过自定义食物录入。</p>
+      <div class="form-grid four">${nutrientFields(manual,"manual",100)}</div>
+      <label class="check"><input type="checkbox" name="manualEstimate"${manual.estimate ? " checked" : ""}> 这是估算数值</label>
+      <div id="foodPreview" class="preview-box" aria-live="polite"></div>
+    </div>`;
+  }
+  const food = editor.food;
+  const favorites = shortcutFoods();
+  const hasOil = food && canAdjustOil(editor.basis);
+  return `<div class="stack tight">
+    ${field(food ? "搜索并更换食物" : "搜索食物",`<input type="search" name="foodSearch" autocomplete="off" value="${html(editor.search)}" maxlength="100"
+      placeholder="例如 米饭、鸡胸肉、宫保鸡丁" data-control="editor-search" aria-controls="editorResults">`)}
+    <div id="editorResults">${foodResults(editor.search)}</div>
+    ${!food && !editor.search ? `<div class="quick-picks"><span class="small muted">常用</span>
+      ${favorites.map(item => button(item.name,"pick-food",{style:"compact",attrs:{id:item.id}})).join("")}</div>` : ""}
+    ${food ? `<div class="row spread align-start">
+      <div class="entry-info"><div class="entry-title"><strong>${html(editor.name)}</strong>${badge(qualityLabels[editor.basis.quality],editor.basis.quality === "recipe" ? "estimate" : "")}</div>
+        <p class="small muted">${html(food.state)} · ${fmt(editor.basis.kcal,1)} kcal / 100 g</p>
+      </div>${getFood(food.id) ? button(data.favorites.includes(food.id) ? "取消收藏" : "收藏食物","favorite",
+        {sym:"star",iconOnly:true,style:"compact",pressed:data.favorites.includes(food.id),attrs:{id:food.id,context:"editor"}}) : ""}
+    </div>
+    ${editor.mode === "exact" ? numField("本次食用重量（g）","exactGrams",editor.exact,{min:.001,max:10000,required:true}) : editorPortions(editor)}
+    ${hasOil ? `<div class="stack tight">
+      <span class="field">烹调油参考</span>
+      <div id="oilChoices">${seg(Object.entries(oilLabels),editor.oil,"food-oil")}</div>
+      <p class="small muted">正常已含用油。每 100 g 清淡最多减 2 g 油，偏油约加 4 g 油。</p>
+    </div>` : ""}
+    <div id="foodPreview" class="preview-box" aria-live="polite">${editorPreview(editor)}</div>` : ""}
+    <div class="actions">${button("新建自定义食物","custom-edit",{style:"compact quiet",attrs:{context:"editor"}})}</div>
+  </div>`;
+}
+function editorPortions(editor) {
+  const portions = portionsFor(editor.food);
+  if (!portions.some(p => p.unit === editor.unit) && editor.unit) {
+    portions.push({unit:editor.unit,grams:editor.unitGrams,icon:servingIcons[editor.unit] || "plate"});
+  }
+  return `<div class="stack tight">
+    <span class="field">点选食堂份量或常用单位</span>
+    <div class="portions">${portions.map(portion => {
+      const selected = portion.unit === editor.unit;
+      const grams = selected ? editor.unitGrams : portion.grams;
+      const isVolume = portion.unit === "毫升";
+      const size = portion.unit.startsWith("大") ? "large" : /^[小半]/.test(portion.unit) ? "small" : "regular";
+      return `<button type="button" class="portion" data-action="portion" data-value="${html(portion.unit)}"
+        data-grams="${portion.grams}" data-size="${size}" aria-pressed="${selected}">
+        ${icon(portion.icon)}<span>${html(portion.unit)}</span>
+        <small>${isVolume ? "按体积" : "约 " + fmt(grams,1) + " g"}</small>
+      </button>`;
+    }).join("")}</div>
+    <div class="form-grid">
+      ${numField(editor.unit === "毫升" ? "体积（mL）" : "数量（" + editor.unit + "）","portionAmount",editor.amount,{min:.001,max:10000,required:true})}
+      ${numField("每「" + editor.unit + "」克数（可调）","unitGrams",editor.unitGrams,{min:.000001,max:10000,required:true})}
+    </div>
+    ${getFood(editor.food.id) && editor.unit !== "毫升" ? `<label class="check"><input name="remember" type="checkbox"${editor.remember ? " checked" : ""}> 记住此食物的常用份量和换算</label>` : ""}
+  </div>`;
+}
+function nutrientFields(values,prefix = "",multiplier = 1) {
+  return [["kcal","热量（kcal）"],["p","蛋白质（g）"],["c","碳水（g）"],["f","脂肪（g）"]].map(([key,label]) =>
+    numField(label,prefix ? prefix + key.toUpperCase() : key,values[key],{min:0,max:(key === "kcal" ? 1000 : 100) * multiplier,required:true})).join("");
+}
+function syncEditor() {
+  const form = $('[data-form="food-editor"]');
+  if (!form) return;
+  const fields = new FormData(form);
+  const editor = ui.editor;
+  editor.date = fields.get("recordDate") || editor.date;
+  editor.meal = fields.get("meal") || editor.meal;
+  editor.note = String(fields.get("note") || "");
+  if (editor.mode === "manual") {
+    editor.manual = {name:String(fields.get("manualName") || ""),amount:nullable(fields.get("manualAmount")),
+      unit:String(fields.get("manualUnit") || ""),grams:nullable(fields.get("manualGrams")),estimate:fields.has("manualEstimate")};
+    for (const key of keys) editor.manual[key] = nullable(fields.get("manual" + key.toUpperCase()));
+  } else {
+    editor.search = String(fields.get("foodSearch") || "");
+    if (editor.food && editor.mode === "exact") editor.exact = nullable(fields.get("exactGrams"));
+    else if (editor.food) {
+      editor.amount = nullable(fields.get("portionAmount"));
+      editor.unitGrams = nullable(fields.get("unitGrams"));
+      editor.remember = fields.has("remember");
+    }
+  }
+}
+function editorEntry(editor, id = uniqueId()) {
+  if (!isDay(editor.date) || !mealKeys.includes(editor.meal)) return null;
+  if (editor.mode === "manual") {
+    const m = editor.manual;
+    const unit = /^(克|g)$/i.test(m.unit.trim()) ? "g" : m.unit.trim();
+    const grams = unit === "g" ? m.amount : m.grams;
+    if (unit === "g" && m.grams !== null && m.grams !== m.amount) return null;
+    if (!textWithin(m.name.trim(),100,false) || !validUnitName(unit) || !validAmount(m.amount) ||
+        !optionalNumber(grams,.001,10000) || !hasMacros(m,100)) return null;
+    return {
+      id,date:editor.date,meal:editor.meal,name:m.name.trim(),foodId:null,amount:m.amount,unit,grams,
+      unitGrams:grams === null ? null : unit === "g" ? 1 : grams / m.amount,oil:"normal",note:editor.note.trim(),
+      kcal:m.kcal,p:m.p,c:m.c,f:m.f,
+      low:m.estimate && m.kcal > 0 ? round(m.kcal * .75) : null,high:m.estimate && m.kcal > 0 ? round(m.kcal * 1.25) : null,
+      quality:m.estimate ? "userEstimate" : "userExact",basis:null
+    };
+  }
+  const exact = editor.mode === "exact";
+  const amount = exact ? editor.exact : editor.amount;
+  const unitGrams = exact ? 1 : editor.unitGrams;
+  if (!editor.food || !validAmount(amount) || !numeric(unitGrams,.000001,10000) || !numeric(round(amount * unitGrams),.001,10000)) return null;
+  return recordFromFood({id,food:{id:editor.food.id,name:editor.name},basis:editor.basis,
+    date:editor.date,meal:editor.meal,amount,unit:exact ? "g" : editor.unit,unitGrams,oil:editor.oil,note:editor.note.trim()});
+}
+function editorPreview(editor) {
+  const entry = editorEntry(editor,"draft");
+  if (!entry) return '<p class="small muted">填写有效数量与营养数据后查看合计。</p>';
+  return `<div class="row spread"><strong>${intakeLabel(entry.kcal, entry.low !== null)}</strong>
+    <span class="small muted">${entry.grams === null ? "" : "总量 " + fmt(entry.grams,1) + " g"}</span></div>
+    <div class="small muted">蛋白 ${fmt(entry.p,1)} g · 碳水 ${fmt(entry.c,1)} g · 脂肪 ${fmt(entry.f,1)} g</div>
+    ${entry.low === null ? "" : `<div class="small muted">参考范围 ${kcalRange(entry)}</div>`}`;
+}
+function refreshEditorBody() {
+  el("editorMode").innerHTML = editorModeButtons();
+  el("editorBody").innerHTML = editorBody();
+  if (ui.editor.mode === "manual") el("foodPreview").innerHTML = editorPreview(ui.editor);
+}
+function setEditorMode(mode) {
+  syncEditor();
+  const editor = ui.editor;
+  if (editor.mode === mode) return;
+  const current = editorEntry(editor,"draft");
+  if (mode === "manual" && !editor.manual) {
+    editor.manual = current ? {
+      name:current.name,amount:current.amount,unit:current.unit,grams:current.grams,
+      kcal:current.kcal,p:current.p,c:current.c,f:current.f,estimate:current.low !== null
+    } : {name:editor.search,amount:1,unit:"份",grams:null,kcal:null,p:null,c:null,f:null,estimate:true};
+  }
+  if (mode === "exact" && current?.grams != null) editor.exact = current.grams;
+  editor.mode = mode;
+  refreshEditorBody();
+}
+function chooseFood(food) {
+  if (!food) return;
+  syncEditor();
+  const editor = ui.editor;
+  const option = defaultPortion(food);
+  editor.food = food;
+  editor.name = food.name;
+  editor.basis = nutrientBasis(food);
+  editor.amount = option.amount;
+  editor.unit = option.unit;
+  editor.unitGrams = option.grams;
+  editor.oil = "normal";
+  editor.remember = false;
+  editor.search = "";
+  editor.manual = null;
+  if (editor.mode === "manual") editor.mode = "portion";
+  if (editor.parsed) applyParsedPortion(editor,food,editor.parsed);
+  if (el("editorBody")) refreshEditorBody();
+  else showFoodEditor();
+}
+function choosePortion(unit,grams) {
+  syncEditor();
+  const editor = ui.editor;
+  const prior = editor.unit;
+  editor.unit = unit;
+  editor.unitGrams = grams;
+  if (prior !== unit) editor.amount = unit === "毫升" ? round(data.settings.cup,3) : 1;
+  refreshEditorBody();
+  $$('[data-action="portion"]',el("modal")).find(item => item.dataset.value === unit)?.focus({preventScroll:true});
+}
+function storeServing(draft, foodId, unit, grams, amount = null) {
+  const found = draft.servings.find(item => item.foodId === foodId && item.unit === unit);
+  if (found) found.grams = grams;
+  else draft.servings.push({foodId,unit,grams});
+  if (amount === null) return;
+  const usual = draft.usual.find(item => item.foodId === foodId);
+  if (usual) Object.assign(usual,{unit,amount});
+  else draft.usual.push({foodId,unit,amount});
+}
+function rememberEntry(draft, entry) {
+  if (entry.foodId && getFood(entry.foodId) && entry.unit !== "g" && entry.unit !== "毫升" && entry.unitGrams !== null) {
+    storeServing(draft,entry.foodId,entry.unit,entry.unitGrams,entry.amount);
+  }
+}
+function submitFoodEditor() {
+  syncEditor();
+  const editor = ui.editor;
+  const entry = editorEntry(editor,editor.entryId || uniqueId());
+  if (!entry || !validEntry(entry)) {
+    errorMessage(editor.food || editor.mode === "manual" ? "请检查份量、总克数和营养数值。总克数须在 0.001–10000 g 之间。" : "请先搜索并选择食物，或切换到手填营养。");
+    return;
+  }
+  if (editor.quickIndex !== null) {
+    const item = ui.quick.items[editor.quickIndex];
+    item.entry = entry;
+    item.remember = editor.remember;
+    item.problem = "";
+    showQuickDialog();
+    return;
+  }
+  if (!commit(draft => {
+    if (editor.entryId && !draft.meals.some(item => item.id === editor.entryId)) throw Error("此记录已被删除。");
+    addById(draft.meals,entry);
+    if (editor.remember) rememberEntry(draft,entry);
+  })) return;
+  ui.date = entry.date;
+  savedMessage(editor.entryId ? "饮食记录已更新" : "食物已添加到" + meals[entry.meal][0]);
+}
+
+const naturalUnits = ["标准份","中份","小份","大份","小杯","中杯","大杯","手掌","拳头","毫升","汤匙","茶匙","碗","杯","瓶","个","片","块","份","把","粒","勺","球","根","克","ml","g"];
+const naturalQty = "(?:\\d+(?:[./]\\d+)?|[零〇一二两三四五六七八九十百]+(?:点[零〇一二三四五六七八九]+)?|半)";
+const unitPattern = "(?:" + naturalUnits.join("|") + ")";
+const implicitSize = "(?:标准份|中份|小份|大份|小杯|中杯|大杯|碗|杯|瓶|个|块)";
+const prefixPortion = new RegExp("^(" + naturalQty + ")(" + unitPattern + ")(半)?(?:的)?(.+)$");
+const suffixPortion = new RegExp("^(.+?)(" + naturalQty + ")(" + unitPattern + ")(半)?$");
+const implicitPrefix = new RegExp("^(" + implicitSize + ")(.+)$");
+const implicitSuffix = new RegExp("^(.+?)(" + implicitSize + ")$");
+const quantityDigits = {"零":0,"〇":0,"一":1,"二":2,"两":2,"三":3,"四":4,"五":5,"六":6,"七":7,"八":8,"九":9};
+function amountNumber(text) {
+  if (text === "半") return .5;
+  if (/^\d+\/\d+$/.test(text)) {
+    const [top,bottom] = text.split("/").map(Number);
+    return top / bottom;
+  }
+  if (/^\d+(\.\d+)?$/.test(text)) return Number(text);
+  const [integer, decimal] = text.split("点");
+  let total = 0;
+  let current = null;
+  for (const char of integer) {
+    if (char === "十" || char === "百") {
+      total += (current ?? 1) * (char === "十" ? 10 : 100);
+      current = null;
+    } else if (owned(quantityDigits,char)) current = current === null ? quantityDigits[char] : current * 10 + quantityDigits[char];
+    else return NaN;
+  }
+  return total + (current ?? 0) + (decimal ? Number("0." + [...decimal].map(char => quantityDigits[char]).join("")) : 0);
+}
+function exactFoodMatch(query) {
+  const ranked = findFoods(query).filter(food => foodRank(food,query) <= 1);
+  const exact = ranked.filter(food => normalize(food.name) === query);
+  const candidates = exact.length ? exact : ranked;
+  return {food:candidates.length === 1 ? candidates[0] : null, ambiguous:candidates.length > 1};
+}
+function recognizedPortion(food, parsed) {
+  if (!parsed.unit || !validAmount(parsed.amount)) return null;
+  if (parsed.unit === "g") return {amount:parsed.amount,unit:"g",grams:1};
+  const choices = portionsFor(food);
+  let option = choices.find(choice => choice.unit === parsed.unit);
+  if (parsed.unit === "中杯") option = choices.find(choice => choice.unit === "杯");
+  if (parsed.unit === "根" && ["香蕉","红薯","玉米粒","糯玉米","黄瓜"].includes(food.name)) {
+    option = choices.find(choice => choice.unit === "个");
+  }
+  if (!option && ["份","标准份","中份"].includes(parsed.unit)) {
+    option = choices.find(choice => ["标准份","中份","份"].includes(choice.unit));
+  }
+  if (!option) return null;
+  if (parsed.amount === .5) {
+    const half = choices.find(choice => choice.unit === "半" + option.unit) ||
+      (["份","标准份","中份"].includes(option.unit) ? choices.find(choice => choice.unit === "半份") : null);
+    if (half) return {...half,amount:1};
+  }
+  return {...option,amount:parsed.amount};
+}
+function parseFoodLine(raw, date, meal) {
+  const oil = /(?:\(|（)?(清淡|偏油|正常)(?:\)|）)?$/.exec(normalize(raw));
+  const clean = (oil ? normalize(raw).slice(0,oil.index) : normalize(raw))
+    .replace(/^(?:还吃了|喝了|吃了|是|还有|再吃|来)/,"")
+    .replace(/^的|的$/g,"").replace(/^[:：]+/,"");
+  let name = clean;
+  let amount = null;
+  let unit = "";
+  if (!exactFoodMatch(clean).food) {
+    const prefix = prefixPortion.exec(clean);
+    const suffix = suffixPortion.exec(clean);
+    const sizeBefore = implicitPrefix.exec(clean);
+    const sizeAfter = implicitSuffix.exec(clean);
+    if (prefix) {
+      amount = amountNumber(prefix[1]) + (prefix[3] ? .5 : 0);
+      unit = prefix[2];
+      name = prefix[4];
+    } else if (suffix) {
+      name = suffix[1];
+      amount = amountNumber(suffix[2]) + (suffix[4] ? .5 : 0);
+      unit = suffix[3];
+    } else if (sizeBefore || sizeAfter) {
+      name = sizeBefore ? sizeBefore[2] : sizeAfter[1];
+      unit = sizeBefore ? sizeBefore[1] : sizeAfter[2];
+      amount = 1;
+    }
+  }
+  if (unit === "克") unit = "g";
+  if (unit === "ml") unit = "毫升";
+  const parsed = {name,amount:amount === null ? null : round(amount),unit,oil:oil ? {"清淡":"light","偏油":"rich","正常":"normal"}[oil[1]] : "normal"};
+  const matched = exactFoodMatch(name);
+  const food = matched.food;
+  const portion = food && recognizedPortion(food,parsed);
+  const item = {raw, parsed, foodId:food?.id || null, entry:null, problem:"", remember:false};
+  if (!food) item.problem = matched.ambiguous ? "有多个同名或同义食物，请选择正确条目。" : "未匹配到食物，请手动选择或填写。";
+  else if (!portion) item.problem = amount === null ? "未识别份量，请确认吃了多少。" : "此食物未配置该单位或数量无效，请确认换算。";
+  else if (!numeric(round(portion.amount * portion.grams),.001,10000)) item.problem = "估算重量超出范围，请核对份量。";
+  else if (parsed.oil !== "normal" && !canAdjustOil(food)) item.problem = "该食物没有用油调整，请核对所选条目。";
+  else item.entry = recordFromFood({food,date,meal,amount:portion.amount,unit:portion.unit,unitGrams:portion.grams,oil:parsed.oil});
+  return item;
+}
+function parseMealText(text, date, fallbackMeal) {
+  const mealPattern = /^\s*(?:我\s*)?(?:(今天|昨天|前天)\s*)?(早餐|早饭|午餐|午饭|中餐|晚餐|晚饭|加餐|夜宵|饮品|饮料)\s*(?:是|我)?\s*(?:吃了|喝了|吃|喝)?\s*[:：]?\s*/;
+  const input = text.normalize("NFKC").trim().replace(/^[“"‘']|[”"’']$/g,"");
+  const options = {早餐:"breakfast",早饭:"breakfast",午餐:"lunch",午饭:"lunch",中餐:"lunch",晚餐:"dinner",晚饭:"dinner",加餐:"snack",夜宵:"snack",饮品:"drink",饮料:"drink"};
+  const match = mealPattern.exec(input);
+  const meal = match ? options[match[2]] : fallbackMeal;
+  const namedDate = match?.[1];
+  const recordDate = namedDate ? shiftDay(localDay(),{"今天":0,"昨天":-1,"前天":-2}[namedDate]) : date;
+  const rest = match ? input.slice(match[0].length) : input.replace(/^(?:我)?(?:吃了|喝了)/,"");
+  const pieces = rest.split(/[、,，;；。+\n]+|以及|还有|外加|加上|和/).map(text => text.trim()).filter(Boolean);
+  return {meal,date:recordDate,items:pieces.slice(0,40).map(piece => parseFoodLine(piece,recordDate,meal)),tooMany:pieces.length > 40};
+}
+function applyParsedPortion(editor,food,parsed) {
+  const portion = recognizedPortion(food,parsed);
+  if (portion?.unit === "g") {
+    editor.mode = "exact";
+    editor.exact = portion.amount;
+  } else if (portion && numeric(round(portion.amount * portion.grams),.001,10000)) {
+    editor.amount = portion.amount;
+    editor.unit = portion.unit;
+    editor.unitGrams = portion.grams;
+  }
+  editor.oil = canAdjustOil(food) ? parsed.oil : "normal";
+}
+function openQuick(date = ui.date, meal = selectedMeal()) {
+  ui.quick = {date,meal,text:"",items:[],dirty:false,tooMany:false};
+  showQuickDialog(true);
+}
+function showQuickDialog(focus = false) {
+  const quick = ui.quick;
+  openModal("快速记录一餐", `<form class="stack" data-form="quick-save">
+    <div class="form-grid">
+      ${field("记录日期",dateField("quickDate",quick.date,"required"))}
+      ${field("餐别",`<select name="quickMeal">${mealOptions(quick.meal)}</select>`)}
+    </div>
+    ${field("这一餐吃了什么？",`<textarea name="mealText" rows="3" maxlength="850" data-control="quick-text" placeholder="例如 午餐吃了一碗米饭、半份宫保鸡丁、一份青菜">${html(quick.text)}</textarea>`)}
+    <div class="actions">${button("识别食物","quick-parse",{sym:"check",style:"primary"})}
+      ${button("逐项选择","quick-row-new",{sym:"plus"})}</div>
+    <div id="quickItems">${quickItemsMarkup()}</div>
+    <p class="small muted">日期以表单为准。识别结果可在保存前修改份量和做法。</p>
+    ${formError}<div class="form-actions">${button("取消","close")}<button id="quickSave" type="submit" class="btn primary"${quickCanSave() ? "" : " disabled"}>保存整餐</button></div>
+  </form>`, {focus:focus ? '[name="mealText"]' : ""});
+}
+function quickCanSave() {
+  return !ui.quick.dirty && !ui.quick.tooMany && ui.quick.items.length > 0 && ui.quick.items.every(item => item.entry);
+}
+function quickItemsMarkup() {
+  const quick = ui.quick;
+  if (quick.dirty) return `<p class="callout">餐食文字已更改。点击「识别食物」更新预览。</p>`;
+  if (quick.tooMany) return `<p class="callout warn">一次最多识别 40 项，请拆成两次录入。</p>`;
+  if (!quick.items.length) return "";
+  const totals = sumFood(quick.items.map(item => item.entry).filter(Boolean));
+  return `<div>
+    ${quick.items.map((item,index) => {
+      const entry = item.entry;
+      return `<div class="entry"><div class="entry-info">
+        <div class="entry-title"><strong>${html(entry?.name || item.raw || "新食物")}</strong>${entry?.low != null ? badge("估算","estimate") : ""}</div>
+        <p class="entry-details">${entry ? html(amountText(entry)) + " · " + intakeLabel(entry.kcal, entry.low !== null) +
+          (entry.basis && canAdjustOil(entry.basis) ? " · " + oilLabels[entry.oil] : "") : html(item.problem)}</p>
+        ${entry?.low != null ? `<p class="entry-details">参考范围 ${kcalRange(entry)}</p>` : ""}
+      </div><div class="entry-right">${button(entry ? "调整" : "手动确认","quick-row",{style:"compact",attrs:{index}})}
+        ${button("移除此项","quick-row-remove",{sym:"trash",iconOnly:true,style:"quiet compact danger",attrs:{index}})}</div></div>`;
+    }).join("")}
+    ${totals.count ? `<p class="preview-box small"><strong>${quickCanSave() ? "整餐合计" : "已确认项小计"} ${intakeLabel(totals.kcal, totals.estimated)}</strong>
+      ${totals.estimated ? " · 参考范围 " + kcalRange(totals) : ""}</p>` : ""}
+  </div>`;
+}
+function syncQuickForm() {
+  const form = $('[data-form="quick-save"]');
+  if (!form) return;
+  const input = new FormData(form);
+  ui.quick.date = String(input.get("quickDate"));
+  ui.quick.meal = String(input.get("quickMeal"));
+  ui.quick.text = String(input.get("mealText"));
+}
+function refreshQuickItems() {
+  el("quickItems").innerHTML = quickItemsMarkup();
+  el("quickSave").disabled = !quickCanSave();
+}
+function runQuickParse() {
+  syncQuickForm();
+  const quick = ui.quick;
+  if (!isDay(quick.date)) {
+    errorMessage("请先选择有效的记录日期。");
+    return;
+  }
+  if (!quick.text.trim()) {
+    errorMessage("请输入餐食，或点击「逐项选择」。");
+    return;
+  }
+  const parsed = parseMealText(quick.text,quick.date,quick.meal);
+  Object.assign(quick,parsed,{dirty:false});
+  $('[name="quickDate"]').value = quick.date;
+  $('[name="quickMeal"]').value = quick.meal;
+  errorMessage(quick.items.length ? "" : "未找到食物名称，请补充餐食内容。");
+  refreshQuickItems();
+}
+function editQuickRow(index) {
+  syncQuickForm();
+  const quick = ui.quick;
+  if (!isDay(quick.date)) {
+    errorMessage("请先选择有效的记录日期。");
+    return;
+  }
+  const item = quick.items[index];
+  if (!item) return;
+  openFoodEditor({date:quick.date,meal:quick.meal,entry:item.entry ? {...item.entry,date:quick.date,meal:quick.meal} : null,
+    food:item.foodId ? getFood(item.foodId) : null,quickIndex:index,search:item.entry || item.foodId ? "" : item.parsed?.name || "",parsed:item.entry ? null : item.parsed});
+  ui.editor.remember = item.remember;
+  if (item.remember) refreshEditorBody();
+}
+function addQuickRow() {
+  syncQuickForm();
+  if (!isDay(ui.quick.date)) {
+    errorMessage("请先选择有效的记录日期。");
+    return;
+  }
+  if (ui.quick.dirty || ui.quick.tooMany) {
+    errorMessage("请先识别当前文字，或清空后逐项选择。");
+    return;
+  }
+  const index = ui.quick.items.length;
+  ui.quick.items.push({raw:"",parsed:null,foodId:null,entry:null,problem:"请选择食物与份量。",remember:false});
+  editQuickRow(index);
+}
+function saveQuick() {
+  syncQuickForm();
+  const quick = ui.quick;
+  if (!quickCanSave() || !isDay(quick.date) || !mealKeys.includes(quick.meal)) {
+    errorMessage("请先确认所有条目和日期。");
+    return;
+  }
+  if (!commit(draft => {
+    for (const item of quick.items) {
+      const entry = {...item.entry,id:uniqueId(),date:quick.date,meal:quick.meal};
+      draft.meals.push(entry);
+      if (item.remember) rememberEntry(draft,entry);
+    }
+  })) return;
+  ui.date = quick.date;
+  savedMessage("已保存" + meals[quick.meal][0] + "，共 " + quick.items.length + " 项");
+}
+
+function foodDetails(food) {
+  const options = portionsFor(food);
+  const preferred = defaultPortion(food);
+  const favorite = data.favorites.includes(food.id);
+  const isCustom = food.group === "自定义";
+  openModal(food.name, `<div class="stack">
+    <div class="wrap">${badge(food.group)}${badge(qualityLabels[food.quality],food.quality === "recipe" ? "estimate" : "")}${badge(food.state)}</div>
+    <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(99px,1fr))">
+      ${stat("每 100 g 热量",fmt(food.kcal,1),"kcal")}
+      ${stat("蛋白质",fmt(food.p,1),"g")}
+      ${stat("碳水化合物",fmt(food.c,1),"g")}
+      ${stat("脂肪",fmt(food.f,1),"g")}
+    </div>
+    <p class="small muted">来源 · ${food.link ? link(food.source,food.link) : html(food.source || "本人录入")}</p>
+    ${food.aliases.length ? `<p class="small muted">别名 · ${html(food.aliases.join("、"))}</p>` : ""}
+    ${food.quality === "recipe" ? `<p class="callout warn">配方不同会影响结果。录入时显示参考范围。${canAdjustOil(food) ? "正常选项已计入典型用油。" : ""}</p>` : ""}
+    <form class="stack tight" data-form="serving">
+      <input type="hidden" name="foodId" value="${html(food.id)}">
+      <h3>每份换算</h3>
+      <div class="form-grid">
+        ${field("份量单位",`<select name="servingUnit" data-control="serving-unit">${options.map(choice =>
+          option(choice.unit,choice.unit + " · 约 " + fmt(choice.grams,3) + " g",preferred.unit)).join("")}</select>`)}
+        ${numField("每单位克数","servingGrams",preferred.grams,{min:.000001,max:10000,required:true})}
+      </div>
+      ${formError}<div class="actions">${submit("保存换算")}
+        ${button("恢复此单位默认","serving-reset",{attrs:{id:food.id}})}</div>
+    </form>
+    <div class="form-actions">
+      ${isCustom ? button("编辑自定义食物","custom-edit",{sym:"edit",attrs:{id:food.id,context:"detail"}}) : ""}
+      ${isCustom ? button("删除自定义食物","delete",{style:"danger",attrs:{type:"custom",id:food.id}}) : ""}
+      ${button(favorite ? "取消收藏" : "收藏","favorite",{sym:"star",pressed:favorite,attrs:{id:food.id,context:"detail"}})}
+      ${button("记入饮食","food-add",{sym:"plus",style:"primary",attrs:{id:food.id}})}
+    </div>
+  </div>`);
+}
+function openCustom(id = null, context = "") {
+  const food = id ? getFood(id) : null;
+  if (id && food?.group !== "自定义") return;
+  if (context === "editor") syncEditor();
+  const draft = food || {name:context === "editor" ? ui.editor.search : "",state:"即食",kind:"serving",
+    base:100,density:1,quality:"userEstimate",aliases:[],source:"",kcal:null,p:null,c:null,f:null};
+  const returnTo = context === "editor" ? showFoodEditor : context === "detail" && food ? () => foodDetails(food) : null;
+  ui.custom = {id,context};
+  openModal(id ? "编辑自定义食物" : "新建自定义食物", `<form class="stack" data-form="custom">
+    <div class="form-grid">
+      ${textField("食物名称","name",draft.name,{required:true,placeholder:"例如 学校食堂咖喱饭"})}
+      ${textField("状态","state",draft.state,{max:70,required:true,placeholder:"例如 熟、去皮、整份"})}
+    </div>
+    <h3>每 100 g 营养</h3>
+    <div class="form-grid four">${nutrientFields(draft)}</div>
+    <div class="form-grid">
+      ${field("份量模板",`<select name="kind" data-control="custom-kind">${Object.entries(familyLabels).map(([key,label]) => option(key,label,draft.kind)).join("")}</select>`)}
+      <div id="customBase">${customBaseField(draft.kind,draft.base)}</div>
+    </div>
+    <div id="customDensity"${draft.kind === "drink" ? "" : " hidden"}>${numField("饮品密度（g/mL）","density",draft.density,{min:.5,max:2,required:true})}</div>
+    <div class="form-grid">
+      ${field("数值性质",`<select name="quality">${option("userEstimate","估算",draft.quality)}${option("userExact","标签或本人已知数值",draft.quality)}</select>`)}
+      ${textField("来源（选填）","source",draft.source,{max:160,placeholder:"例如 包装标签或配方"})}
+    </div>
+    ${textField("别名（用逗号分隔，选填）","aliases",draft.aliases.join("、"),{max:300,placeholder:"例如 校园咖喱饭"})}
+    <p class="small muted">标为估算的菜品模板以已含正常用油为基准。饮品的营养同样按每 100 g 填写。</p>
+    ${modalFooter(context === "editor" ? "保存并选用" : "保存食物",context === "editor" ? "返回录入" : "取消")}
+  </form>`, {cancel:returnTo,focus:'[name="name"]'});
+}
+function customBaseField(kind,value) {
+  return numField(kind === "drink" ? "默认杯／瓶容量（mL）" : "默认单位克数（g）","base",value,{min:.01,max:10000,required:true});
+}
+function submitCustom(fields) {
+  const {id,context} = ui.custom;
+  const kind = String(fields.get("kind"));
+  const food = {
+    id:id || "u:" + uniqueId(),name:String(fields.get("name")).trim(),state:String(fields.get("state")).trim(),
+    group:"自定义",kind,base:Number(fields.get("base")),quality:String(fields.get("quality")),
+    density:kind === "drink" ? Number(fields.get("density")) : 1,source:String(fields.get("source")).trim(),
+    aliases:[...new Set(String(fields.get("aliases")).split(/[、,，;；]+/).map(alias => alias.trim()).filter(Boolean))],
+    ...Object.fromEntries(keys.map(key => [key,nullable(fields.get(key))]))
+  };
+  if (!validFood(food)) {
+    errorMessage("请核对名称、状态、每 100 g 营养和默认份量。别名最多 15 个，每个 60 字。");
+    return;
+  }
+  if (allFoods().some(other => other.id !== food.id && normalize(other.name) === normalize(food.name))) {
+    errorMessage("已有同名食物。请用不同名称区分，例如加上品牌或食堂名称。");
+    return;
+  }
+  if (!commit(draft => {
+    if (id && !draft.foods.some(item => item.id === id)) throw Error("此食物已被删除。");
+    addById(draft.foods,food);
+    if (id) {
+      const units = new Set(portionsFor(food,draft).map(portion => portion.unit));
+      draft.servings = draft.servings.filter(item => item.foodId !== id || units.has(item.unit));
+      draft.usual = draft.usual.filter(item => item.foodId !== id || units.has(item.unit));
+    }
+  })) return;
+  if (context === "editor") {
+    chooseFood(food);
+    render();
+    notify("已保存到自定义食物库");
+  } else if (context === "detail") {
+    render();
+    foodDetails(food);
+    notify("自定义食物已更新");
+  } else {
+    if (!id && ui.view === "library") {
+      ui.dbFilter = "custom";
+      ui.dbGroup = "";
+      ui.dbQuery = "";
+      ui.dbLimit = 24;
+    }
+    savedMessage(id ? "自定义食物已更新" : "自定义食物已添加");
+  }
+}
+function toggleFavorite(id,context) {
+  const food = getFood(id);
+  if (!food) return;
+  const had = data.favorites.includes(id);
+  if (!commit(draft => {
+    if (had) draft.favorites = draft.favorites.filter(item => item !== id);
+    else draft.favorites.push(id);
+  })) return;
+  if (context === "detail") foodDetails(food);
+  if (context === "editor") {
+    syncEditor();
+    refreshEditorBody();
+  }
+  render();
+  notify(had ? "已取消收藏" : "已收藏");
+}
+function saveServing(fields) {
+  const food = getFood(fields.get("foodId"));
+  if (!food) return;
+  const unit = String(fields.get("servingUnit"));
+  const grams = nullable(fields.get("servingGrams"));
+  if (!portionsFor(food).some(item => item.unit === unit) || !numeric(grams,.000001,10000)) {
+    errorMessage("请选择有效单位并填写克数。");
+    return;
+  }
+  if (!commit(draft => storeServing(draft,food.id,unit,grams))) return;
+  render();
+  foodDetails(food);
+  const picker = $('[name="servingUnit"]',el("modal"));
+  picker.value = unit;
+  $('[name="servingGrams"]',el("modal")).value = grams;
+  notify("已保存份量换算");
+}
+function resetServing(id) {
+  const food = getFood(id);
+  const unit = $('[name="servingUnit"]',el("modal"))?.value;
+  if (!food || !unit) return;
+  if (!commit(draft => {
+    draft.servings = draft.servings.filter(item => item.foodId !== id || item.unit !== unit);
+  })) return;
+  render();
+  foodDetails(food);
+  $('[name="servingUnit"]',el("modal")).value = unit;
+  $('[name="servingGrams"]',el("modal")).value = portionsFor(food).find(item => item.unit === unit).grams;
+  notify("已恢复默认换算");
+}
+function manageServings() {
+  const ids = [...new Set([...data.servings,...data.usual].map(item => item.foodId))];
+  openModal("管理食物份量", `<div class="stack tight">
+    ${ids.length ? ids.map(id => {
+      const food = getFood(id);
+      if (!food) return "";
+      const unit = data.usual.find(item => item.foodId === id);
+      const values = data.servings.filter(item => item.foodId === id).map(item => `${item.unit} ≈ ${fmt(item.grams,3)} g`);
+      return `<div class="entry"><div>
+        <div class="entry-title"><strong>${html(food.name)}</strong></div>
+        <p class="small muted">${html([...(unit ? ["常用 " + fmt(unit.amount,3) + unit.unit] : []),...values].join(" · "))}</p>
+        </div><div class="entry-right">
+        ${button("修改换算","food-detail",{style:"compact",attrs:{id}})}
+        ${button("恢复默认","serving-clear",{style:"compact danger",attrs:{id}})}</div></div>`;
+    }).join("") : empty("暂无单独记住的份量。")}
+    ${formError}
+    <div class="form-actions">${button("完成","close")}</div>
+  </div>`);
+}
+function clearFoodPortions(id) {
+  if (!commit(draft => {
+    draft.servings = draft.servings.filter(item => item.foodId !== id);
+    draft.usual = draft.usual.filter(item => item.foodId !== id);
+  })) return;
+  render();
+  manageServings();
+  notify("已恢复该食物的默认份量");
+}
+
+function openWeight(date) {
+  if (!isDay(date)) return;
+  const previous = data.weights.find(weight => weight.date === date);
+  const now = new Date();
+  const time = previous?.time || `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  openModal(previous ? "编辑体重" : "记录体重", `<form class="stack" data-form="weight">
+    <input type="hidden" name="previousDate" value="${previous?.date || ""}">
+    <div class="form-grid">
+      ${field("日期",dateField("date",date,"required"))}
+      ${field("测量时间",`<input type="time" name="time" value="${time}" required>`)}
+      ${numField("体重（kg）","kg",previous?.kg,{min:15,max:650,required:true})}
+      ${numField("体脂率（%）","fat",previous?.fat,{min:1,max:75,placeholder:"选填"})}
+    </div>
+    ${noteField(previous?.note || "")}
+    ${modalFooter(previous ? "保存修改" : "保存体重")}
+  </form>`,{focus:'[name="kg"]'});
+}
+function submitWeight(fields) {
+  const previousDate = String(fields.get("previousDate"));
+  const weight = {date:String(fields.get("date")),time:String(fields.get("time")),kg:nullable(fields.get("kg")),
+    fat:nullable(fields.get("fat")),note:String(fields.get("note")).trim()};
+  if (!validWeight(weight)) {
+    errorMessage("请检查日期、测量时间、体重和体脂率。");
+    return;
+  }
+  if (!commit(draft => {
+    if (previousDate && !draft.weights.some(item => item.date === previousDate)) throw Error("此记录已被删除。");
+    if (weight.date !== previousDate && draft.weights.some(item => item.date === weight.date)) throw Error("目标日期已有体重记录，请从历史中编辑该日。");
+    if (previousDate && previousDate !== weight.date) draft.weights = draft.weights.filter(item => item.date !== previousDate);
+    addByDate(draft.weights,weight);
+  })) return;
+  ui.date = weight.date;
+  ui.calMonth = weight.date.slice(0,7);
+  savedMessage(previousDate ? "体重记录已更新" : "体重已保存");
+}
+function submitSteps(fields) {
+  const count = nullable(fields.get("count"));
+  if (!Number.isInteger(count) || !numeric(count,0,150000)) {
+    errorMessage("请填写 0–150000 之间的整数步数。");
+    return;
+  }
+  if (commit(draft => addByDate(draft.steps,{date:ui.date,count}))) savedMessage("步数已保存");
+}
+function openExercise({id = null,kind = "aerobic"} = {}) {
+  const previous = id ? data.exercise.find(sport => sport.id === id) : null;
+  if (id && !previous) return;
+  const type = previous?.type || (kind === "strength" ? "resistance" : "walking");
+  const counted = previous ? previous.counted : sports[type].cadence[1] > 0;
+  const date = previous?.date || ui.date;
+  openModal(previous ? "编辑训练" : "记录训练", `<form class="stack" data-form="exercise">
+    <input name="id" type="hidden" value="${html(previous?.id || "")}">
+    <div class="form-grid">
+      ${field("日期",dateField("date",date,"required"))}
+      ${field("运动类型",`<select name="type" data-control="sport-type">
+        ${["aerobic","strength"].map(group => `<optgroup label="${group === "aerobic" ? "有氧运动" : "力量 / 无氧"}">
+          ${Object.entries(sports).filter(([,sport]) => sport.kind === group).map(([key,sport]) => option(key,sport.name,type)).join("")}</optgroup>`).join("")}
+      </select>`)}
+      ${numField("时长（分钟）","minutes",previous?.minutes,{min:1,max:1440,required:true,placeholder:"含组间休息"})}
+      ${field("强度",`<select name="intensity">${Object.entries(intensity).map(([key,[label]]) => option(key,label,previous?.intensity || "moderate")).join("")}</select>`)}
+    </div>
+    ${textField("训练名称（选填）","label",previous?.label || "",{max:80,placeholder:"例如 哑铃深蹲或校园慢跑"})}
+    <label class="check"><input type="checkbox" name="counted" data-control="sport-counted"${counted ? " checked" : ""}> 这次训练的步数已计入当天总步数</label>
+    <div id="sportSteps"${counted ? "" : " hidden"}>
+      ${numField("训练步数（选填）","sportSteps",previous?.sportSteps,{min:0,max:150000,step:1,placeholder:"可留空按步频估算"})}
+    </div>
+    <div id="sportPreview" class="preview-box small" aria-live="polite"></div>
+    ${noteField(previous?.note || "")}
+    ${modalFooter(previous ? "保存修改" : "保存训练")}
+  </form>`,{focus:'[name="minutes"]'});
+  refreshSportPreview();
+}
+function sportFromFields(fields) {
+  return {
+    id:String(fields.get("id") || "preview"),date:String(fields.get("date")),type:String(fields.get("type")),
+    intensity:String(fields.get("intensity")),minutes:nullable(fields.get("minutes")),label:String(fields.get("label")).trim(),
+    counted:fields.has("counted"),sportSteps:fields.has("counted") ? nullable(fields.get("sportSteps")) : null,
+    note:String(fields.get("note")).trim()
+  };
+}
+function refreshSportPreview() {
+  const form = $('[data-form="exercise"]');
+  if (!form) return;
+  const sport = sportFromFields(new FormData(form));
+  const preview = el("sportPreview");
+  el("sportSteps").hidden = !sport.counted;
+  if (!validExercise(sport)) {
+    preview.textContent = "填写有效时长后查看运动净消耗估算。";
+    return;
+  }
+  const kg = weightStats(sport.date).latest?.kg ?? data.profile.initialWeight;
+  const levels = sports[sport.type];
+  const idx = intensity[sport.intensity][1];
+  const energy = workoutCalories(sport,kg);
+  const estimate = energy === null ? "可记录体重后估算运动消耗" : "运动净消耗约 " + fmt(energy) + " kcal";
+  preview.textContent = `参考 ${fmt(levels.met[idx],1)} MET · ${estimate}${sport.counted ?
+    ` · 约扣除 ${fmt(sport.sportSteps ?? Math.round(sport.minutes * levels.cadence[idx]))} 步（至多扣除当天总步数）` : ""}`;
+}
+function submitExercise(fields) {
+  const oldId = String(fields.get("id"));
+  const sport = {...sportFromFields(fields),id:oldId || uniqueId()};
+  if (!validExercise(sport)) {
+    errorMessage("请检查日期、类型、强度、运动时长和步数。");
+    return;
+  }
+  const cadence = sports[sport.type].cadence[intensity[sport.intensity][1]];
+  if (sport.counted && sport.sportSteps === null && cadence === 0) {
+    errorMessage("该运动没有默认步频。请填写计入总步数的实际训练步数，或取消勾选。");
+    return;
+  }
+  if (!commit(draft => {
+    if (oldId && !draft.exercise.some(item => item.id === oldId)) throw Error("此记录已被删除。");
+    addById(draft.exercise,sport);
+  })) return;
+  ui.date = sport.date;
+  savedMessage(oldId ? "训练记录已更新" : "训练已保存");
+}
+
+function copyChoices(date) {
+  const source = new Map();
+  for (const entry of data.meals) {
+    const key = entry.date + "|" + entry.meal;
+    if (!source.has(key)) source.set(key,[]);
+    source.get(key).push(entry);
+  }
+  return [...source].sort((a,b) => Number(a[1][0].date === date) - Number(b[1][0].date === date) ||
+    b[1][0].date.localeCompare(a[1][0].date) || mealKeys.indexOf(a[1][0].meal) - mealKeys.indexOf(b[1][0].meal));
+}
+function copyTargetMeal(template, date) {
+  const source = template[0];
+  if (!source || source.date !== date) return source?.meal || selectedMeal();
+  const current = selectedMeal();
+  return current === source.meal ? (current === "lunch" ? "dinner" : "lunch") : current;
+}
+function copyMealDialog() {
+  const choices = copyChoices(ui.date);
+  const template = choices[0]?.[1] || [];
+  openModal("复制历史餐食", choices.length ? `<form class="stack" data-form="copy-meal">
+    ${field("选择来源餐食",`<select name="source" data-control="copy-source">${choices.map(([key,entries]) => option(key,
+      entries[0].date + " " + meals[entries[0].meal][0] + " · " + entries.length + " 项",choices[0][0])).join("")}</select>`)}
+    <div id="copyPreview">${mealPreview(template)}</div>
+    <div class="form-grid">
+      ${field("目标日期",dateField("date",ui.date,"required"))}
+      ${field("记入餐别",`<select name="meal">${mealOptions(copyTargetMeal(template,ui.date))}</select>`)}
+    </div>
+    ${modalFooter("复制到目标餐食")}
+  </form>` : `<div class="stack">${empty("暂无可复制的餐食。")}<div class="form-actions">${button("完成","close")}</div></div>`);
+}
+function copySource(key) {
+  if (typeof key !== "string") return [];
+  const [date,meal] = key.split("|");
+  return data.meals.filter(entry => entry.date === date && entry.meal === meal);
+}
+function mealPreview(entries) {
+  if (!entries.length) return empty("餐食暂无条目。");
+  const sum = sumFood(entries);
+  return `<div class="preview-box small">
+    <p>${html(entries.map(entry => entry.name + " " + amountText(entry)).join("、"))}</p>
+    <p class="muted"><strong>${fmt(sum.kcal,1)} kcal</strong> · 蛋白 ${fmt(sum.p,1)} g · 碳水 ${fmt(sum.c,1)} g · 脂肪 ${fmt(sum.f,1)} g</p>
+    ${sum.estimated ? `<p class="muted">参考范围 ${kcalRange(sum)}</p>` : ""}
+  </div>`;
+}
+function copyEntries(entries,date,meal,message) {
+  if (!entries.length || !isDay(date) || !mealKeys.includes(meal)) {
+    errorMessage("来源已变更，或目标日期与餐别无效。");
+    return false;
+  }
+  if (!commit(draft => {
+    draft.meals.push(...entries.map(entry => ({...entry,id:uniqueId(),date,meal})));
+  })) return false;
+  ui.date = date;
+  savedMessage(message);
+  return true;
+}
+function saveCopy(fields) {
+  const entries = copySource(fields.get("source"));
+  const date = String(fields.get("date"));
+  const meal = String(fields.get("meal"));
+  if (entries[0]?.date === date && entries[0]?.meal === meal) {
+    errorMessage("请选择不同的目标日期或餐别。");
+    return;
+  }
+  copyEntries(entries,date,meal,"历史餐食已复制");
+}
+function comboSaveDialog(meal,id = "") {
+  const combo = id ? data.combos.find(item => item.id === id) : null;
+  if (id && !combo) return;
+  const entries = combo?.items || dayFood(ui.date).filter(entry => entry.meal === meal);
+  if (!entries.length) return;
+  openModal(combo ? "编辑组合名称" : "保存为常用组合", `<form class="stack" data-form="combo-save">
+    <input type="hidden" name="id" value="${html(id)}">
+    <input type="hidden" name="date" value="${ui.date}">
+    <input type="hidden" name="meal" value="${html(meal)}">
+    ${textField("组合名称","name",combo?.name || "",{required:true,placeholder:"例如 午餐常点套餐"})}
+    ${mealPreview(entries)}
+    ${modalFooter(combo ? "保存名称" : "保存组合",combo ? "返回组合" : "取消")}
+  </form>`,{cancel:combo ? comboDialog : null,focus:'[name="name"]'});
+}
+function saveCombo(fields) {
+  const id = String(fields.get("id"));
+  const name = String(fields.get("name")).trim();
+  const date = String(fields.get("date"));
+  const meal = String(fields.get("meal"));
+  if (!textWithin(name,100,false)) {
+    errorMessage("请输入组合名称。");
+    return;
+  }
+  if (!commit(draft => {
+    const combo = id && draft.combos.find(item => item.id === id);
+    if (id && !combo) throw Error("此组合已被删除。");
+    if (combo) combo.name = name;
+    else {
+      const items = draft.meals.filter(entry => entry.date === date && entry.meal === meal);
+      if (!items.length) throw Error("该餐食暂无条目。");
+      draft.combos.push({id:uniqueId(),name,items:clone(items)});
+    }
+  })) return;
+  render();
+  comboDialog();
+  notify(id ? "组合名称已更新" : "餐食组合已保存");
+}
+function comboDialog() {
+  openModal("组合餐食", `<div class="stack">
+    ${data.combos.length ? data.combos.map(combo => `<div class="stack tight">
+      <div class="row wrap spread"><h3>${html(combo.name)}</h3><div class="actions">
+        ${button("编辑组合名称","combo-save",{sym:"edit",iconOnly:true,style:"quiet compact",attrs:{id:combo.id}})}
+        ${button("删除组合","delete",{sym:"trash",iconOnly:true,style:"quiet compact danger",attrs:{type:"combo",id:combo.id}})}
+        ${button("使用组合","combo-use",{sym:"plus",style:"compact primary",attrs:{id:combo.id}})}</div></div>
+      ${mealPreview(combo.items)}</div>`).join("") :
+      empty("在饮食记录中添加一餐后，选择「存为组合」，下次可以整组添加。")}
+    <div class="form-actions">${button("完成","close")}</div>
+  </div>`);
+}
+function comboUseDialog(id) {
+  const combo = data.combos.find(item => item.id === id);
+  if (!combo) return;
+  openModal("使用常用组合", `<form class="stack" data-form="combo-use">
+    <input type="hidden" name="id" value="${html(id)}">
+    <h3>${html(combo.name)}</h3>
+    ${mealPreview(combo.items)}
+    <div class="form-grid">
+      ${field("记录日期",dateField("date",ui.date,"required"))}
+      ${field("餐别",`<select name="meal">${mealOptions(combo.items[0].meal)}</select>`)}
+    </div>
+    ${modalFooter("添加整组","返回组合")}
+  </form>`,{cancel:comboDialog});
+}
+
+const removalLabels = {meal:"这条饮食记录",weight:"这天的体重记录",steps:"这天的步数记录",exercise:"这条训练记录",custom:"这个自定义食物",combo:"这个餐食组合"};
+function deleteDialog(type,id) {
+  if (!owned(removalLabels,type)) return;
+  const originalFood = type === "custom" ? getFood(id) : null;
+  const cancel = type === "combo" ? comboDialog : originalFood ? () => foodDetails(originalFood) : null;
+  openModal("确认删除", `<form class="stack" data-form="delete">
+    <input type="hidden" name="type" value="${type}">
+    <input type="hidden" name="id" value="${html(id)}">
+    <p>删除${removalLabels[type]}？</p>
+    ${type === "custom" ? '<p class="small muted">已有饮食记录仍可查看和编辑。</p>' : ""}
+    ${modalFooter("确认删除","取消","danger")}
+  </form>`,{cancel});
+}
+function submitDelete(type,id) {
+  if (!owned(removalLabels,type)) return;
+  const mapping = {meal:"meals",weight:"weights",steps:"steps",exercise:"exercise",custom:"foods",combo:"combos"};
+  if (!commit(draft => {
+    const key = mapping[type];
+    draft[key] = draft[key].filter(item => (type === "weight" || type === "steps" ? item.date : item.id) !== id);
+    if (type === "custom") {
+      draft.favorites = draft.favorites.filter(item => item !== id);
+      draft.servings = draft.servings.filter(item => item.foodId !== id);
+      draft.usual = draft.usual.filter(item => item.foodId !== id);
+    }
+  })) return;
+  if (type === "combo") {
+    render();
+    comboDialog();
+    notify("已删除组合");
+  } else savedMessage("已删除");
+}
+function submitProfile(fields) {
+  const profile = Object.fromEntries(Object.keys(initialProfile).map(key => [key,
+    key === "sex" || key === "activity" ? fields.get(key) || null : nullable(fields.get(key))]));
+  if (!validProfile(profile)) {
+    errorMessage("请检查个人资料和目标数值。目标可留空。");
+    return;
+  }
+  if (commit(draft => { draft.profile = profile; })) savedMessage("个人设置已保存");
+}
+function submitPreferences(fields) {
+  const bowl = nullable(fields.get("bowl"));
+  const cup = nullable(fields.get("cup"));
+  if (!numeric(bowl,1,2000) || !numeric(cup,1,2000)) {
+    errorMessage("碗与杯的容量须在 1–2000 之间。");
+    return;
+  }
+  if (commit(draft => { Object.assign(draft.settings,{bowl,cup}); })) savedMessage("碗杯容量已保存");
+}
+
+function download(name,content,type) {
+  const url = URL.createObjectURL(new Blob([content],{type}));
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = name;
+  anchor.hidden = true;
+  document.body.append(anchor);
+  try { anchor.click(); }
+  finally {
+    anchor.remove();
+    setTimeout(() => URL.revokeObjectURL(url),30000);
+  }
+}
+function csvCell(input) {
+  if (input === null || input === undefined) return "";
+  if (typeof input === "number") return String(round(input));
+  let value = String(input);
+  if (/^[\s\uFEFF]*[=+\-@]|^[\t\r\n]/.test(value)) value = "'" + value;
+  return '"' + value.replaceAll('"','""') + '"';
+}
+function csv(headers,rows) {
+  return "\uFEFF" + [headers,...rows].map(row => row.map(csvCell).join(",")).join("\r\n");
+}
+function exportCsv(type) {
+  if (type === "meals") {
+    return ["饮食记录",csv(["日期","餐别","食物","数量","单位","总克数","每单位克数","用油档位","热量(kcal)","蛋白质(g)","碳水(g)","脂肪(g)","参考下限(kcal)","参考上限(kcal)","数据类型","备注"],
+      [...data.meals].sort(byDay).map(entry => [entry.date,meals[entry.meal][0],entry.name,entry.amount,entry.unit,entry.grams,entry.unitGrams,
+        entry.basis && canAdjustOil(entry.basis) ? oilLabels[entry.oil] : null,entry.kcal,entry.p,entry.c,entry.f,entry.low,entry.high,qualityLabels[entry.quality],entry.note]))];
+  }
+  if (type === "weights") {
+    return ["体重记录",csv(["日期","测量时间","体重(kg)","体脂率(%)","备注"],
+      sortWeights().map(weight => [weight.date,weight.time,weight.kg,weight.fat,weight.note]))];
+  }
+  const workout = byDate(data.exercise);
+  const steps = new Map(data.steps.map(item => [item.date,item.count]));
+  const weights = sortWeights();
+  let index = 0;
+  let kg = data.profile.initialWeight;
+  const withWeight = dates => dates.map(date => {
+    while (index < weights.length && weights[index].date <= date) kg = weights[index++].kg;
+    return [date,kg];
+  });
+  if (type === "exercise") {
+    const dates = [...new Set([...workout.keys(),...steps.keys()])].sort();
+    const rows = withWeight(dates).flatMap(([date,kg]) => {
+      const values = [];
+      if (steps.has(date)) values.push([date,"步数",steps.get(date)]);
+      for (const sport of workout.get(date) || []) {
+        const item = sports[sport.type];
+        const intensityIndex = intensity[sport.intensity][1];
+        const met = item.met[intensityIndex];
+        values.push([date,item.kind === "strength" ? "力量/无氧" : "有氧",null,sportName(sport),item.name,sport.minutes,intensity[sport.intensity][0],met,
+          sport.counted ? "是" : "否",sport.counted ? sport.sportSteps ?? Math.round(item.cadence[intensityIndex] * sport.minutes) : null,
+          sport.counted ? sport.sportSteps === null ? "步频估算" : "手动记录" : null,
+          workoutCalories(sport,kg),sport.note]);
+      }
+      return values.map(row => Array.from({length:13},(_,i) => row[i] ?? null));
+    });
+    return ["运动与步数",csv(["日期","记录类型","当日步数","训练名称","运动类型","分钟","强度","参考MET","训练计入总步数","运动步数","运动步数依据","运动净消耗估算(kcal)","备注"], rows)];
+  }
+  if (type === "energy") {
+    const food = byDate(data.meals);
+    return ["每日能量",csv(["日期","参考体重(kg)","BMR估算(kcal)","实际步数","估算采用步数","扣除重叠步数","运动净消耗(kcal)","摄入(kcal)","摄入下限(kcal)","摄入上限(kcal)","消耗估算(kcal)","消耗下限(kcal)","消耗上限(kcal)","摄入减消耗(kcal)","差值下限(kcal)","差值上限(kcal)"],
+    withWeight(activeDates()).map(([date,kg]) => {
+      const totals = food.has(date) ? sumFood(food.get(date)) : null;
+      const energy = energyEstimate(data.profile,kg,steps.get(date) ?? null,workout.get(date) || []);
+      const hasBalance = totals !== null && energy.estimate !== null;
+      return [date,kg,energy.bmr,steps.get(date) ?? null,energy.steps,energy.overlap,energy.workoutKcal,totals?.kcal,
+        totals?.low,totals?.high,energy.estimate,energy.low,energy.high,
+        hasBalance ? totals.kcal - energy.estimate : null,hasBalance ? totals.low - energy.high : null,hasBalance ? totals.high - energy.low : null];
+    }))];
+  }
+  return null;
+}
+function exportData(type) {
+  try {
+    if (type === "json") {
+      const stamp = new Date().toISOString();
+      const saved = storageMode !== "invalid" && commit(draft => { draft.backupAt = stamp; });
+      const backup = saved ? data : {...data,backupAt:stamp};
+      download(`健康记录备份-${localDay()}.json`,JSON.stringify(backup,null,2),"application/json;charset=utf-8");
+      if (saved) render();
+      notify(saved ? "JSON 备份已生成" : "JSON 备份已生成，备份时间未写入本地存储");
+      return;
+    }
+    const result = exportCsv(type);
+    if (result) {
+      const [label,content] = result;
+      download(`${label}-${localDay()}.csv`,content,"text/csv;charset=utf-8");
+      notify("CSV 已生成");
+    }
+  } catch {
+    notify("文件生成失败。请用支持本地下载的浏览器重试。");
+  }
+}
+let pendingImport = null;
+let importReadId = 0;
+async function readImport(file) {
+  if (!file) return;
+  const currentRead = ++importReadId;
+  pendingImport = null;
+  try {
+    if (file.size > 24 * 1024 * 1024) throw Error("文件大于 24 MB，请检查是否选中了备份 JSON。");
+    const contents = await file.text();
+    if (currentRead !== importReadId) return;
+    let restored;
+    try { restored = JSON.parse(contents.replace(/^\uFEFF/,"")); }
+    catch { throw Error("JSON 格式无效。请重新选择应用导出的备份文件。"); }
+    pendingImport = validateState(restored);
+    openModal("确认恢复备份", `<form class="stack" data-form="import">
+      <p class="small muted">文件 · ${html(file.name)}</p>
+      <p>将恢复 ${restored.meals.length} 条饮食、${restored.weights.length} 条体重、${restored.steps.length} 条步数、${restored.exercise.length} 条训练及全部个人设置。</p>
+      <p class="callout warn">恢复会替换当前数据。可先取消，并导出当前数据作为备份。</p>
+      ${modalFooter("确认恢复")}
+    </form>`);
+  } catch (error) {
+    if (currentRead !== importReadId) return;
+    openModal("无法导入备份",`<div class="stack">
+      <p class="callout error">${html(error.message || "无法读取文件。")} 已取消导入。</p>
+      <div class="form-actions">${button("关闭","close")}</div>
+    </div>`);
+  }
+}
+function confirmImport() {
+  if (!pendingImport) return;
+  if (!commit(() => {},{replace:pendingImport})) return;
+  pendingImport = null;
+  ui.date = localDay();
+  ui.calMonth = ui.date.slice(0,7);
+  savedMessage("已恢复备份");
+}
+function clearDialog() {
+  openModal("清空所有数据", `<div class="stack">
+    <p>清除饮食、体重、运动、步数、自定义食物、收藏和份量偏好，并把个人设置恢复为初始值。</p>
+    <p class="callout warn">此操作无法撤销。已有 JSON 备份可以恢复记录。</p>
+    <div class="form-actions">${button("取消","close")}${button("继续清空","clear-confirm",{style:"danger"})}</div>
+  </div>`);
+}
+function clearConfirmDialog() {
+  openModal("再次确认清空",`<form class="stack" data-form="clear">
+    ${textField("输入「清空」以确认","phrase","",{max:10,required:true,placeholder:"清空"})}
+    ${modalFooter("永久清空","取消","danger")}
+  </form>`,{focus:'[name="phrase"]'});
+}
+function clearAll(fields) {
+  if (String(fields.get("phrase")).trim() !== "清空") {
+    errorMessage("请输入「清空」确认。");
+    return;
+  }
+  if (!commit(() => {},{replace:blankState()})) return;
+  ui.date = localDay();
+  ui.calMonth = ui.date.slice(0,7);
+  ui.dbFilter = "all";
+  ui.dbQuery = ui.dbGroup = ui.hxQuery = ui.hxStart = ui.hxEnd = "";
+  savedMessage("数据已清空，个人资料已恢复初始值");
+}
+
+function updateLibrary() {
+  const container = el("libraryResults");
+  if (container) container.innerHTML = libraryResults();
+}
+function updateHistory() {
+  const container = el("historyResults");
+  if (container) container.innerHTML = historyResults();
+}
+function shiftMonth(offset) {
+  const date = dateObject(ui.calMonth + "-01");
+  date.setMonth(date.getMonth() + offset);
+  const value = localDay(date);
+  if (!isDay(value)) return;
+  ui.calMonth = value.slice(0,7);
+  render();
+}
+function changeChartSetting(key,value,allowed,action) {
+  if (!allowed.includes(value)) return;
+  ui[key] = value;
+  render();
+  $$('button[data-action="' + action + '"]',el("view")).find(button => button.dataset.value === value)
+    ?.focus({preventScroll:true});
+}
+const actions = {
+  nav:({view,date,section}) => go(view,date,section),
+  theme:() => {
+    if (commit(draft => { draft.settings.theme = draft.settings.theme === "light" ? "dark" : "light"; })) {
+      render();
+      $('[data-action="theme"]')?.focus({preventScroll:true});
+    }
+  },
+  close:cancelModal,
+  today:() => setDay(localDay()),
+  "day-step":({offset}) => setDay(shiftDay(ui.date,Number(offset))),
+  "cal-step":({offset}) => shiftMonth(Number(offset)),
+  "cal-today":() => setDay(localDay()),
+  "calendar-date":({date,scroll}) => {
+    setDay(date);
+    if (scroll === "yes") window.scrollTo(0,0);
+    $$('button.day-cell').find(item => item.dataset.date === date)?.focus({preventScroll:true});
+  },
+  more:({target}) => {
+    if (target === "library") { ui.dbLimit += 24; updateLibrary(); }
+    else if (target === "history") { ui.hxLimit += 20; updateHistory(); }
+    else if (target === "weight") { ui.weightLimit += 20; render(); }
+  },
+  "trend-range":({value}) => changeChartSetting("trendRange",value,["7","30","90","all"],"trend-range"),
+  "trend-group":({value}) => changeChartSetting("trendGroup",value,["week","month"],"trend-group"),
+  "macro-select":({key}) => selectMacro(key),
+  quick:({date,meal}) => openQuick(date,meal),
+  "quick-parse":runQuickParse,
+  "quick-row":({index}) => editQuickRow(Number(index)),
+  "quick-row-new":addQuickRow,
+  "quick-row-remove":({index}) => {
+    ui.quick.items.splice(Number(index),1);
+    refreshQuickItems();
+  },
+  "food-add":({date,meal,id}) => openFoodEditor({date,meal,food:id ? getFood(id) : null}),
+  "food-edit":({id}) => {
+    const entry = data.meals.find(item => item.id === id);
+    if (entry) openFoodEditor({entry});
+  },
+  "food-mode":({value}) => {
+    setEditorMode(value);
+    $$('[data-action="food-mode"]').find(item => item.dataset.value === value)?.focus({preventScroll:true});
+  },
+  "food-oil":({value}) => {
+    syncEditor();
+    ui.editor.oil = value;
+    el("oilChoices").innerHTML = seg(Object.entries(oilLabels),value,"food-oil");
+    el("foodPreview").innerHTML = editorPreview(ui.editor);
+    $$('[data-action="food-oil"]').find(item => item.dataset.value === value)?.focus({preventScroll:true});
+  },
+  "pick-food":({id}) => {
+    chooseFood(getFood(id));
+    ($('#editorBody button.portion[aria-pressed="true"]') || $('#editorBody [name="exactGrams"]'))?.focus({preventScroll:true});
+  },
+  portion:({value,grams}) => choosePortion(value,Number(grams)),
+  favorite:({id,context}) => toggleFavorite(id,context),
+  "food-detail":({id}) => { const food = getFood(id); if (food) foodDetails(food); },
+  "custom-edit":({id,context}) => openCustom(id,context),
+  "serving-reset":({id}) => resetServing(id),
+  "servings-manage":manageServings,
+  "serving-clear":({id}) => clearFoodPortions(id),
+  "weight-edit":({date}) => openWeight(date || ui.date),
+  "exercise-edit":({id,kind}) => openExercise({id,kind}),
+  "copy-meal":copyMealDialog,
+  combos:comboDialog,
+  "combo-save":({meal,id}) => comboSaveDialog(meal,id),
+  "combo-use":({id}) => comboUseDialog(id),
+  delete:({type,id}) => deleteDialog(type,id),
+  export:({type}) => exportData(type),
+  import:() => el("importFile").click(),
+  clear:clearDialog,
+  "clear-confirm":clearConfirmDialog
+};
+document.addEventListener("click",event => {
+  const control = event.target.closest?.("[data-action]");
+  if (control && !control.disabled && owned(actions,control.dataset.action)) {
+    actions[control.dataset.action](control.dataset);
+    return;
+  }
+  const chart = event.target.closest?.("svg[data-chart]");
+  if (chart) chartPointer(chart,event.clientX);
+});
+const formHandlers = {
+  "food-editor":submitFoodEditor,
+  "quick-save":saveQuick,
+  weight:submitWeight,
+  steps:submitSteps,
+  exercise:submitExercise,
+  custom:submitCustom,
+  serving:saveServing,
+  profile:submitProfile,
+  preferences:submitPreferences,
+  "copy-meal":saveCopy,
+  "combo-save":saveCombo,
+  "combo-use":fields => {
+    const combo = data.combos.find(item => item.id === fields.get("id"));
+    copyEntries(combo?.items || [],String(fields.get("date")),String(fields.get("meal")),"组合已记入饮食");
+  },
+  delete:fields => submitDelete(String(fields.get("type")),String(fields.get("id"))),
+  import:confirmImport,
+  clear:clearAll
+};
+document.addEventListener("submit",event => {
+  const form = event.target;
+  if (!owned(formHandlers,form.dataset.form)) return;
+  event.preventDefault();
+  form.querySelector(".form-error").textContent = "";
+  formHandlers[form.dataset.form](new FormData(form));
+});
+document.addEventListener("input",event => {
+  const input = event.target;
+  const control = input.dataset.control;
+  if (control === "library-query") {
+    ui.dbQuery = input.value;
+    ui.dbLimit = 24;
+    updateLibrary();
+  } else if (control === "history-query") {
+    ui.hxQuery = input.value;
+    ui.hxLimit = 20;
+    updateHistory();
+  } else if (control === "editor-search") {
+    ui.editor.search = input.value;
+    el("editorResults").innerHTML = foodResults(input.value);
+    const shortcuts = $(".quick-picks",el("modal"));
+    if (shortcuts) shortcuts.hidden = Boolean(normalize(input.value));
+  } else if (control === "quick-text") {
+    const quick = ui.quick;
+    if (input.value !== quick.text) {
+      quick.text = input.value;
+      quick.dirty = Boolean(input.value.trim());
+      if (!quick.dirty) { quick.items = []; quick.tooMany = false; }
+      refreshQuickItems();
+    }
+  } else if (input.closest?.('[data-form="food-editor"]') && el("foodPreview")) {
+    syncEditor();
+    const portionLabel = $('#editorBody .portion[aria-pressed="true"] small');
+    if (input.name === "unitGrams" && portionLabel && ui.editor.unit !== "毫升") {
+      portionLabel.textContent = ui.editor.unitGrams === null ? "—" : "约 " + fmt(ui.editor.unitGrams,1) + " g";
+    }
+    el("foodPreview").innerHTML = editorPreview(ui.editor);
+  } else if (input.closest?.('[data-form="exercise"]') && control !== "sport-type") refreshSportPreview();
+});
+document.addEventListener("change",event => {
+  const input = event.target;
+  if (input.id === "importFile") {
+    const file = input.files[0];
+    input.value = "";
+    void readImport(file);
+    return;
+  }
+  switch (input.dataset.control) {
+    case "active-date":
+      setDay(input.value);
+      if (!isDay(input.value)) input.value = ui.date;
+      break;
+    case "calendar-month":
+      if (isDay(input.value + "-01")) {
+        ui.calMonth = input.value;
+        render();
+      } else input.value = ui.calMonth;
+      break;
+    case "history-from": case "history-to":
+      if (!input.value || isDay(input.value)) {
+        ui[input.dataset.control === "history-from" ? "hxStart" : "hxEnd"] = input.value;
+        ui.hxLimit = 20;
+        updateHistory();
+      }
+      break;
+    case "library-group": case "library-filter":
+      ui[input.dataset.control === "library-group" ? "dbGroup" : "dbFilter"] = input.value;
+      ui.dbLimit = 24;
+      updateLibrary();
+      break;
+    case "custom-kind": {
+      const base = $('[name="base"]')?.value;
+      el("customBase").innerHTML = customBaseField(input.value,base);
+      el("customDensity").hidden = input.value !== "drink";
+      break;
+    }
+    case "serving-unit": {
+      const food = getFood($('[name="foodId"]',el("modal")).value);
+      const serving = food && portionsFor(food).find(portion => portion.unit === input.value);
+      if (serving) $('[name="servingGrams"]',el("modal")).value = serving.grams;
+      break;
+    }
+    case "copy-source": {
+      const entries = copySource(input.value);
+      el("copyPreview").innerHTML = mealPreview(entries);
+      $('[name="meal"]',el("modal")).value = copyTargetMeal(entries,$('[name="date"]',el("modal")).value);
+      break;
+    }
+    case "sport-type": {
+      $('[name="counted"]',el("modal")).checked = sports[input.value].cadence[1] > 0;
+      $('[name="sportSteps"]',el("modal")).value = "";
+      refreshSportPreview();
+      break;
+    }
+    case "sport-counted":
+      refreshSportPreview();
+      break;
+    default:
+      if (input.closest?.('[data-form="exercise"]')) refreshSportPreview();
+  }
+});
+function chartPointer(svg,clientX) {
+  const model = ui.charts.get(svg.dataset.chart);
+  if (!model) return;
+  const bounds = svg.getBoundingClientRect();
+  const x = (clientX - bounds.left) * model.w / bounds.width;
+  setChartIndex(svg.dataset.chart,Math.floor((x - model.left) / model.slot));
+}
+document.addEventListener("pointermove",event => {
+  const chart = event.target.closest?.("svg[data-chart]");
+  if (chart && event.pointerType !== "touch") chartPointer(chart,event.clientX);
+});
+document.addEventListener("keydown",event => {
+  const target = event.target;
+  if (event.isComposing || event.keyCode === 229) return;
+  if (target.dataset.chart && ["ArrowLeft","ArrowRight","Home","End"].includes(event.key)) {
+    event.preventDefault();
+    const model = ui.charts.get(target.dataset.chart);
+    if (!model) return;
+    const next = event.key === "Home" ? 0 : event.key === "End" ? model.series.length - 1 :
+      model.active + (event.key === "ArrowLeft" ? -1 : 1);
+    setChartIndex(target.dataset.chart,next);
+  } else if (target.dataset.control === "editor-search" && ["Enter","ArrowDown"].includes(event.key)) {
+    event.preventDefault();
+    const result = $("#editorResults button");
+    if (event.key === "Enter") result?.click();
+    else result?.focus();
+  } else if (target.closest?.("#editorResults") && ["ArrowDown","ArrowUp"].includes(event.key)) {
+    event.preventDefault();
+    const list = $$("#editorResults button");
+    const index = list.indexOf(target);
+    if (event.key === "ArrowUp" && index === 0) $('[name="foodSearch"]').focus();
+    else list[cap(index + (event.key === "ArrowDown" ? 1 : -1),0,list.length - 1)]?.focus();
+  }
+});
+let lastToday = localDay();
+function refreshToday() {
+  const today = localDay();
+  if (today === lastToday || el("modal").open) return;
+  if (ui.date === lastToday) {
+    ui.date = today;
+    ui.calMonth = today.slice(0,7);
+  }
+  lastToday = today;
+  if (ui.view === "overview" || ui.view === "trends") render();
+}
+document.addEventListener("visibilitychange",() => { if (!document.hidden) refreshToday(); });
+setInterval(refreshToday,60000);
+render();
+</script>
+</body>
+</html>
