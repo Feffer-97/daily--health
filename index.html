@@ -12,7 +12,7 @@
   --ink:#202922; --muted:#58665d; --soft:#6a766e; --line:#e1e6dc; --hair:#edf0e9;
   --accent:#326249; --accent-hover:#284e3a; --on-accent:#fff; --tint:#e8f1e8; --subtle:#f2f5ee;
   --carb:#5e8d70; --protein:#8a7658; --fat:#737b9b; --chart:#46775b; --chart-two:#8d7046;
-  --chart-three:#717ba0; --track:#e7ede3; --caution:#805819; --caution-bg:#faf0db;
+  --chart-three:#717ba0; --water:#347585; --water-bg:#e6f1f1; --track:#e7ede3; --caution:#805819; --caution-bg:#faf0db;
   --danger:#9c3e3d; --danger-bg:#fbeceb; --shadow:0 2px 4px #27392406;
   --modal-shadow:0 20px 80px #15231832;
   --side-width:230px;
@@ -24,7 +24,7 @@
   --ink:#edf2eb; --muted:#bbc6bc; --soft:#aab8ad; --line:#39463c; --hair:#303d33;
   --accent:#a9d7b6; --accent-hover:#c5e8cb; --on-accent:#192a1f; --tint:#2c4233; --subtle:#29342c;
   --carb:#8fc2a0; --protein:#d1b78f; --fat:#abb3d6; --chart:#a0d1ae; --chart-two:#d6b880;
-  --chart-three:#abb7e0; --track:#38473b; --caution:#eed097; --caution-bg:#413521;
+  --chart-three:#abb7e0; --water:#9dd4e0; --water-bg:#273e43; --track:#38473b; --caution:#eed097; --caution-bg:#413521;
   --danger:#f2aca7; --danger-bg:#492b2b; --shadow:0 2px 4px #0002;
 }
 *,*::before,*::after { box-sizing:border-box; }
@@ -160,6 +160,12 @@ main { max-width:1360px; margin:auto; padding:32px clamp(24px,3.6vw,54px) 48px; 
 .meal-line .unit-label { font-size:.8125rem; }
 .meal-emblem { width:30px; height:30px; display:grid; place-items:center; background:var(--subtle); border-radius:8px; flex:none; }
 .meal-emblem .icon { width:17px; height:17px; color:var(--accent); }
+.water-overview { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px 20px; }
+.water-overview h2 { font-size:1rem; }
+.water-emblem { background:var(--water-bg); width:37px; height:37px; }
+.water-emblem .icon { color:var(--water); width:21px; height:21px; }
+.water-total { margin-top:2px; color:var(--water); font-size:1.2rem; }
+.water-quick .btn { min-height:40px; }
 .foot-note { margin-top:11px; color:var(--muted); font-size:.8125rem; overflow-wrap:anywhere; }
 .day-bar {
   margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; gap:12px;
@@ -327,6 +333,7 @@ dialog .stack { gap:13px; }
   <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 4 3 19h18L12 4Zm0 6v4m0 2.5v.2"/></symbol>
   <symbol id="i-bolt" viewBox="0 0 24 24"><path d="m13 2-8 12h6l-1 8 9-12h-6l1-8Z"/></symbol>
   <symbol id="i-cup" viewBox="0 0 24 24"><path d="M4 6h12v7a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V6Zm12 1h2a2 2 0 0 1 0 4h-2m-12 9h14"/></symbol>
+  <symbol id="i-water" viewBox="0 0 24 24"><path d="M12 3.5c2 3.7 6 7.3 6 11a6 6 0 1 1-12 0c0-3.7 4-7.3 6-11Zm-2.7 11.4c0 1.5 1.2 2.8 2.7 2.8"/></symbol>
   <symbol id="i-bowl" viewBox="0 0 24 24"><path d="M3 9h18a9 9 0 0 1-18 0Zm5 10h8"/></symbol>
   <symbol id="i-bowl-half" viewBox="0 0 24 24"><path d="M3 9h18a9 9 0 0 1-18 0Zm5 10h8M5 14h14"/></symbol>
   <symbol id="i-plate" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.7"/></symbol>
@@ -902,6 +909,8 @@ const servingIcons = {
 const initialProfile = {age:null, sex:null, height:null, initialWeight:null, goalWeight:null, refSteps:null,
   refBmr:null, refTdee:null, activity:null, kcalGoal:null, pGoal:null, cGoal:null, fGoal:null};
 const initialSettings = {theme:"light", bowl:150, cup:250};
+const waterPresets = [150,250,500];
+const maxWaterEntry = 20000;
 const STORE_KEY = "daily-health-journal:share:v1";
 const TAB_COPY_KEY = STORE_KEY + ":tab-copy";
 const VIEW_KEY = STORE_KEY + ":view";
@@ -909,7 +918,7 @@ const SCHEMA = "daily-health-journal";
 function blankState() {
   return {
     schema:SCHEMA, version:1, profile:{...initialProfile}, settings:{...initialSettings},
-    meals:[], weights:[], steps:[], exercise:[], foods:[], favorites:[], servings:[], usual:[], combos:[],
+    meals:[], water:[], weights:[], steps:[], exercise:[], foods:[], favorites:[], servings:[], usual:[], combos:[],
     firstSavedAt:null, savedAt:null, backupAt:null
   };
 }
@@ -958,6 +967,10 @@ function validWeight(weight) {
     optionalNumber(weight.fat, 1, 75) && typeof weight.time === "string" &&
     /^([01]\d|2[0-3]):[0-5]\d$/.test(weight.time) && textWithin(weight.note, 500);
 }
+function validWater(entry) {
+  return isObject(entry) && token(entry.id) && isDay(entry.date) &&
+    Number.isInteger(entry.ml) && numeric(entry.ml,1,maxWaterEntry);
+}
 function validExercise(sport) {
   return isObject(sport) && token(sport.id) && isDay(sport.date) && owned(sports, sport.type) &&
     owned(intensity, sport.intensity) && numeric(sport.minutes, 1, 1440) && textWithin(sport.label, 80) &&
@@ -967,6 +980,7 @@ function validExercise(sport) {
 }
 function validateState(state) {
   if (!isObject(state) || state.schema !== SCHEMA || state.version !== 1) throw Error("请选择本应用导出的第 1 版 JSON 备份。");
+  if (!Object.hasOwn(state,"water")) state = {...state,water:[]};
   if (!validProfile(state.profile)) throw Error("个人资料字段缺失或数值超出可接受范围。");
   const settings = state.settings;
   if (!isObject(settings) || !["light","dark"].includes(settings.theme) ||
@@ -978,6 +992,7 @@ function validateState(state) {
     }
   }
   checkList("meals", validEntry, entry => entry.id, "饮食记录");
+  checkList("water", validWater, entry => entry.id, "饮水记录");
   checkList("weights", validWeight, weight => weight.date, "体重记录");
   checkList("steps", step => isObject(step) && isDay(step.date) && Number.isInteger(step.count) &&
     numeric(step.count, 0, 150000), step => step.date, "步数记录");
@@ -1087,14 +1102,14 @@ function commit(mutator, {replace = null} = {}) {
     errorMessage("另一个标签页刚更新了数据。请查看页面的保存状态后重试。");
     return false;
   }
-  const next = replace === null ? clone(data) : clone(replace);
+  const draft = replace === null ? clone(data) : clone(replace);
   try {
-    mutator(next);
+    mutator(draft);
     const previousSave = data.savedAt ? Date.parse(data.savedAt) : 0;
     const stamp = new Date(Math.max(Date.now(),previousSave + 1)).toISOString();
-    next.firstSavedAt ??= stamp;
-    next.savedAt = stamp;
-    validateState(next);
+    draft.firstSavedAt ??= stamp;
+    draft.savedAt = stamp;
+    const next = validateState(draft);
     const raw = JSON.stringify(next);
     const saveError = current.available ? writeStorage("localStorage",STORE_KEY,raw) : current.error;
     const tabError = rememberTabCopy(next,saveError ? storedAt : next.savedAt);
@@ -1292,6 +1307,8 @@ function byDate(entries) {
   return grouped;
 }
 const dayFood = date => data.meals.filter(entry => entry.date === date);
+const dayWater = date => data.water.filter(entry => entry.date === date);
+const sumWater = entries => entries.reduce((total,entry) => total + entry.ml,0);
 const daySports = date => data.exercise.filter(sport => sport.date === date);
 const daySteps = date => data.steps.find(item => item.date === date)?.count ?? null;
 const sortWeights = (state = data) => [...state.weights].sort(byDay);
@@ -1415,7 +1432,7 @@ function renderChrome() {
     food:"按餐记录，支持食堂份量与离线识别",
     weight:"按日期记录体重与体脂",
     exercise:"记录步数与训练，查看当日能量平衡",
-    trends:"查看摄入、体重和运动的长期变化",
+    trends:"查看饮食、饮水、体重和运动趋势",
     calendar:"按日期或关键词查询记录",
     library:`${catalog.length} 种内置食物 · 按每 100 g 查看营养`,
     settings:"管理目标、常用份量和本地备份"
@@ -1529,6 +1546,7 @@ function overviewView() {
   const weight = weightStats(today);
   const rolling = kcalAverage(today,7);
   return `<div class="grid dash-grid">
+    ${waterOverview(today)}
     <section class="card">
       ${titleBar("今日摄入", entries.length ? (totals.estimated ? badge("估算","estimate") : "") : badge("待记录"),"meal")}
       <div class="energy-overview">
@@ -1585,6 +1603,22 @@ function overviewView() {
     </section>
   </div>`;
 }
+function waterQuickButtons(date) {
+  return waterPresets.map(ml => button("+" + ml + " mL","water-add",{style:"compact",attrs:{date,ml}})).join("");
+}
+function waterOverview(date) {
+  return `<section class="card full water-overview" aria-label="今日饮水">
+    <div class="row">
+      <span class="meal-emblem water-emblem">${icon("water")}</span>
+      <div><h2>今日饮水</h2><p class="water-total number"><strong>${fmt(sumWater(dayWater(date)))}</strong> <span class="unit-label">mL</span></p></div>
+    </div>
+    <div class="actions water-quick">
+      ${waterQuickButtons(date)}
+      ${button("自定义水量","water-edit",{style:"compact",attrs:{date}})}
+      ${button("饮水明细","nav",{style:"quiet compact",attrs:{view:"food",date,section:"water-log"}})}
+    </div>
+  </section>`;
+}
 function energyCard(date, totals = sumFood(dayFood(date))) {
   const value = dayEnergy(date);
   const hasEstimate = value.estimate !== null;
@@ -1628,8 +1662,24 @@ function foodView() {
         ${button("组合餐食","combos",{sym:"book"})}
       </div>
     </section>
+    ${waterSection(ui.date)}
     ${mealKeys.map(meal => mealSection(meal,entries.filter(entry => entry.meal === meal))).join("")}
   </div>`;
+}
+function waterSection(date) {
+  const entries = dayWater(date);
+  return `<section class="card meal-card" id="water-log">
+    <header class="card-head">
+      <div class="row"><span class="meal-emblem water-emblem">${icon("water")}</span><h2>饮水记录</h2>
+        <span class="badge number">合计 ${fmt(sumWater(entries))} mL</span></div>
+      <div class="actions water-quick">${waterQuickButtons(date)}${button("自定义水量","water-edit",{style:"compact",attrs:{date}})}</div>
+    </header>
+    ${entries.length ? [...entries].reverse().map(entry => `<div class="entry">
+      <div class="entry-title"><strong class="number">${fmt(entry.ml)} mL</strong></div>
+      <div class="entry-right">${button("编辑饮水记录","water-edit",{sym:"edit",iconOnly:true,style:"quiet compact",attrs:{id:entry.id}})}
+        ${button("删除饮水记录","delete",{sym:"trash",iconOnly:true,style:"quiet compact danger",attrs:{type:"water",id:entry.id}})}</div>
+      </div>`).join("") : empty("当天暂无饮水记录。")}
+  </section>`;
 }
 function mealSection(meal, entries) {
   const totals = sumFood(entries);
@@ -1741,8 +1791,9 @@ function exerciseEntry(sport, kg, edit = true) {
   </div>`;
 }
 
-function activeDates() {
-  return [...new Set([...data.meals,...data.weights,...data.steps,...data.exercise].map(record => record.date))].sort();
+function activeDates(includeWater = true) {
+  return [...new Set([...data.meals,...data.weights,...data.steps,...data.exercise,...(includeWater ? data.water : [])]
+    .map(record => record.date))].sort();
 }
 function buildTrend() {
   const today = localDay();
@@ -1751,6 +1802,7 @@ function buildTrend() {
     ui.trendRange === "all" ? today : shiftDay(today,1 - Number(ui.trendRange));
   const end = dates?.at(-1) > today ? dates.at(-1) : today;
   const mealsByDate = byDate(data.meals);
+  const waterByDate = byDate(data.water);
   const sportsByDate = byDate(data.exercise);
   const counts = new Map(data.steps.map(step => [step.date,step.count]));
   const weights = sortWeights();
@@ -1773,6 +1825,7 @@ function buildTrend() {
     const energy = (total || steps !== null || workouts.length) ? energyEstimate(data.profile,latestWeight,steps,workouts) : null;
     series.push({
       date,label:shortDay(date),detail:date,kcal:total?.kcal ?? null,weight:measurement?.kg ?? null,
+      water:waterByDate.has(date) ? sumWater(waterByDate.get(date)) : null,
       avgWeight:average(windowWeights.map(weight => weight.kg)),
       weightDelta:measurement && data.profile.initialWeight !== null ? measurement.kg - data.profile.initialWeight : null,
       goal:data.profile.kcalGoal, intakeLow:total?.low ?? null, intakeHigh:total?.high ?? null,
@@ -1837,6 +1890,7 @@ function scaleDomain(values, zero, floorPadding) {
   return [round(Math.floor(low / step + 1e-8) * step,6),round(Math.ceil(high / step - 1e-8) * step,6),step];
 }
 const chartSeries = {
+  water:{key:"water",label:"饮水量",unit:"mL",color:"--water",bar:true},
   kcal:{key:"kcal", label:"摄入", unit:"kcal", color:"--carb", bar:true},
   goal:{key:"goal", label:"热量目标", unit:"kcal", color:"--chart-two", dash:true},
   weight:{key:"weight", label:"体重", unit:"kg", color:"--chart"},
@@ -1991,7 +2045,7 @@ function selectMacro(key) {
 }
 function trendsView() {
   const {start,end,series} = buildTrend();
-  const displayed = compactSeries(series,["kcal","goal","weight","avgWeight","weightDelta","expenditure","intakeLow","intakeHigh","expLow","expHigh","balance","steps","minutes"]);
+  const displayed = compactSeries(series,["kcal","goal","weight","avgWeight","weightDelta","expenditure","intakeLow","intakeHigh","expLow","expHigh","balance","steps","minutes","water"]);
   const intake = sumFood(data.meals.filter(entry => entry.date >= start && entry.date <= end));
   const period = compactSeries(periodStats(series,ui.trendGroup),["mean"]);
   const target = data.profile.kcalGoal ? [chartSeries.goal] : [];
@@ -1999,6 +2053,7 @@ function trendsView() {
   const estimatedWorkouts = series.filter(point => point.net !== null);
   const totalNet = estimatedWorkouts.length ? estimatedWorkouts.reduce((total,point) => total + point.net,0) : null;
   const meanSteps = average(series.map(point => point.steps).filter(value => value !== null));
+  const waterDays = series.map(point => point.water).filter(value => value !== null);
   const condensed = displayed.length < series.length;
   const stepsSeries = displayed.map(row => ({...row,minutes:row.minutes > 0 ? row.minutes : null}));
   return `<div class="stack">
@@ -2025,6 +2080,9 @@ function trendsView() {
       <section class="card">${titleBar("摄入与能量消耗",badge("估算","estimate"),"bolt")}
         ${svgChart("energy","摄入与预计消耗",displayed,[chartSeries.kcal,chartSeries.expenditure],{zero:true})}
         <p class="foot-note">补充个人资料后可查看消耗估算。点按图表中的日期可查看数值。</p></section>
+      <section class="card full">${titleBar("每日饮水量",waterDays.length ? badge("日均 " + fmt(average(waterDays)) + " mL","green") : "","water")}
+        ${svgChart("water","每日饮水量",displayed,[chartSeries.water],{zero:true,emptyText:"当前时段暂无饮水记录。"})}
+        ${waterDays.length ? '<p class="foot-note">日均按有饮水记录的日期计算。</p>' : ""}</section>
       <section class="card full">${titleBar("步数与训练","", "steps")}
         <div class="kpi-grid">
           ${stat("已记录日均步数",fmt(meanSteps),"步")}
@@ -2037,7 +2095,7 @@ function trendsView() {
   </div>`;
 }
 
-const calendarColors = {food:"--carb",weight:"--chart-three",activity:"--chart-two"};
+const calendarColors = {food:"--carb",weight:"--chart-three",activity:"--chart-two",water:"--water"};
 function calendarView() {
   const month = ui.calMonth;
   const first = month + "-01";
@@ -2045,6 +2103,7 @@ function calendarView() {
   const lastOfMonth = new Date(dateObject(first).getFullYear(),dateObject(first).getMonth() + 1,0).getDate();
   const visibleDays = Math.ceil((weekdayOffset + lastOfMonth) / 7) * 7;
   const mealDays = new Set(data.meals.map(entry => entry.date));
+  const waterDays = new Set(data.water.map(entry => entry.date));
   const weightDays = new Set(data.weights.map(entry => entry.date));
   const activityDays = new Set([...data.exercise,...data.steps].map(entry => entry.date));
   const today = localDay();
@@ -2052,7 +2111,7 @@ function calendarView() {
     const date = shiftDay(first,index - weekdayOffset);
     if (!isDay(date)) return '<span aria-hidden="true"></span>';
     const marks = [["饮食",mealDays.has(date),calendarColors.food],["体重",weightDays.has(date),calendarColors.weight],
-      ["运动或步数",activityDays.has(date),calendarColors.activity]].filter(mark => mark[1]);
+      ["运动或步数",activityDays.has(date),calendarColors.activity],["饮水",waterDays.has(date),calendarColors.water]].filter(mark => mark[1]);
     return `<button type="button" class="day-cell ${date.slice(0,7) === month ? "" : "out"} ${date === today ? "today" : ""}" data-action="calendar-date"
       data-date="${date}" aria-label="${date}${marks.length ? "，有" + marks.map(mark => mark[0]).join("、") + "记录" : ""}" aria-pressed="${ui.date === date}"${date === today ? ' aria-current="date"' : ""}>
       <span>${Number(date.slice(8))}</span><span class="dots">${marks.map(mark => swatch(mark[2])).join("")}</span></button>`;
@@ -2067,7 +2126,7 @@ function calendarView() {
       </div>
       <div class="calendar-head" aria-hidden="true">${[..."一二三四五六日"].map(day => `<span>${day}</span>`).join("")}</div>
       <div class="cal-grid">${cells}</div>
-      <div class="chart-legend" style="margin-top:10px"><span>${swatch(calendarColors.food)} 饮食</span><span>${swatch(calendarColors.weight)} 体重</span><span>${swatch(calendarColors.activity)} 步数 / 训练</span></div>
+      <div class="chart-legend" style="margin-top:10px"><span>${swatch(calendarColors.food)} 饮食</span><span>${swatch(calendarColors.weight)} 体重</span><span>${swatch(calendarColors.activity)} 步数 / 训练</span><span>${swatch(calendarColors.water)} 饮水</span></div>
     </section>
     <section class="card">
       ${titleBar("当日记录","", "book")}
@@ -2077,7 +2136,7 @@ function calendarView() {
     <section class="card full">
       ${titleBar("查找历史记录")}
       <div class="form-grid three" style="margin-bottom:12px">
-        ${field("搜索",`<input type="search" name="historyQuery" value="${html(ui.hxQuery)}" placeholder="食物、训练或备注" data-control="history-query" maxlength="100">`)}
+        ${field("搜索",`<input type="search" name="historyQuery" value="${html(ui.hxQuery)}" placeholder="食物、饮水、训练或备注" data-control="history-query" maxlength="100">`)}
         ${field("起始日期",dateField("historyFrom",ui.hxStart,'data-control="history-from"'))}
         ${field("结束日期",dateField("historyTo",ui.hxEnd,'data-control="history-to"'))}
       </div>
@@ -2087,6 +2146,7 @@ function calendarView() {
 }
 function calendarDaySummary(date) {
   const foods = dayFood(date);
+  const water = dayWater(date);
   const totals = sumFood(foods);
   const weight = data.weights.find(weight => weight.date === date);
   const sports = daySports(date);
@@ -2099,6 +2159,9 @@ function calendarDaySummary(date) {
       const entries = foods.filter(food => food.meal === meal);
       return entries.length ? meals[meal][0] + " " + entries.map(food => food.name).join("、") : "";
     }).filter(Boolean).join(" · "))}</p>` : ""}
+    <div class="row spread"><strong class="small">饮水 · ${water.length ? fmt(sumWater(water)) + " mL" : "暂无记录"}</strong>
+      ${water.length ? button("饮水明细","nav",{style:"compact",attrs:{view:"food",date,section:"water-log"}}) :
+        button("补录饮水","water-edit",{style:"compact",attrs:{date}})}</div>
     <div class="row spread"><strong class="small">体重 · ${weight ? fmt(weight.kg,2) + " kg" : "暂无记录"}</strong>
       ${button(weight ? "编辑体重" : "补录体重","weight-edit",{style:"compact",attrs:{date}})}</div>
     ${weight ? `<p class="small muted">${weight.time}${weight.fat === null ? "" : ` · 体脂率 ${fmt(weight.fat,2)}%`}</p>${noteLine(weight.note)}` : ""}
@@ -2113,23 +2176,25 @@ function calendarDaySummary(date) {
 function historyResults() {
   if (ui.hxStart && ui.hxEnd && ui.hxStart > ui.hxEnd) return `<p class="callout error">结束日期须在起始日期当天或之后。</p>`;
   const foods = byDate(data.meals);
+  const water = byDate(data.water);
   const workout = byDate(data.exercise);
   const weight = new Map(data.weights.map(item => [item.date,item]));
   const steps = new Map(data.steps.map(item => [item.date,item.count]));
   const query = normalize(ui.hxQuery);
   const rows = activeDates().reverse().filter(date => (!ui.hxStart || date >= ui.hxStart) && (!ui.hxEnd || date <= ui.hxEnd))
-    .map(date => ({date, foods:foods.get(date) || [], weight:weight.get(date), workout:workout.get(date) || [], steps:steps.get(date)}))
+    .map(date => ({date, foods:foods.get(date) || [], water:water.get(date) || [], weight:weight.get(date), workout:workout.get(date) || [], steps:steps.get(date)}))
     .filter(row => {
       if (!query) return true;
       const matches = [row.date,row.weight?.note,...row.foods.flatMap(food => [food.name,food.note,meals[food.meal][0]]),
-        ...row.workout.flatMap(sport => [sportName(sport),sport.note])];
+        ...row.workout.flatMap(sport => [sportName(sport),sport.note]),row.water.length ? "饮水 喝水" : ""];
       return matches.some(text => normalize(text).includes(query));
     });
   if (!rows.length) return empty("没有符合条件的历史记录。");
-  return `<div class="table-wrap" tabindex="0" aria-label="历史查询结果"><table><thead><tr><th>日期</th><th>饮食</th><th>热量</th><th>体重</th><th>步数</th><th>训练</th><th>操作</th></tr></thead>
+  return `<div class="table-wrap" tabindex="0" aria-label="历史查询结果"><table><thead><tr><th>日期</th><th>饮食</th><th>热量</th><th>饮水</th><th>体重</th><th>步数</th><th>训练</th><th>操作</th></tr></thead>
     <tbody>${rows.slice(0,ui.hxLimit).map(row => `<tr>
       <td>${row.date}</td><td class="text-cell">${html(row.foods.map(food => food.name).join("、") || "—")}</td>
       <td>${row.foods.length ? fmt(sumFood(row.foods).kcal) + " kcal" : "—"}</td>
+      <td>${row.water.length ? fmt(sumWater(row.water)) + " mL" : "—"}</td>
       <td>${row.weight ? fmt(row.weight.kg,2) + " kg" : "—"}</td>
       <td>${fmt(row.steps)}</td><td class="text-cell">${html(row.workout.map(sport => sportName(sport) + " " + fmt(sport.minutes,1) + " 分钟").join("、") || "—")}</td>
       <td>${button("查看日期","calendar-date",{style:"compact",attrs:{date:row.date,scroll:"yes"}})}</td></tr>`).join("")}</tbody></table></div>
@@ -2254,6 +2319,7 @@ function settingsView() {
           ${button("导出全部 JSON","export",{sym:"download",style:"primary",attrs:{type:"json"}})}
           ${button("导入 JSON","import",{sym:"upload"})}
           ${button("饮食 CSV","export",{attrs:{type:"meals"}})}
+          ${button("饮水 CSV","export",{attrs:{type:"water"}})}
           ${button("体重 CSV","export",{attrs:{type:"weights"}})}
           ${button("运动与步数 CSV","export",{attrs:{type:"exercise"}})}
           ${button("每日能量 CSV","export",{attrs:{type:"energy"}})}
@@ -3243,7 +3309,7 @@ function comboUseDialog(id) {
   </form>`,{cancel:comboDialog});
 }
 
-const removalLabels = {meal:"这条饮食记录",weight:"这天的体重记录",steps:"这天的步数记录",exercise:"这条训练记录",custom:"这个自定义食物",combo:"这个餐食组合"};
+const removalLabels = {meal:"这条饮食记录",water:"这条饮水记录",weight:"这天的体重记录",steps:"这天的步数记录",exercise:"这条训练记录",custom:"这个自定义食物",combo:"这个餐食组合"};
 function deleteDialog(type,id) {
   if (!owned(removalLabels,type)) return;
   const originalFood = type === "custom" ? getFood(id) : null;
@@ -3258,7 +3324,7 @@ function deleteDialog(type,id) {
 }
 function submitDelete(type,id) {
   if (!owned(removalLabels,type)) return;
-  const mapping = {meal:"meals",weight:"weights",steps:"steps",exercise:"exercise",custom:"foods",combo:"combos"};
+  const mapping = {meal:"meals",water:"water",weight:"weights",steps:"steps",exercise:"exercise",custom:"foods",combo:"combos"};
   if (!commit(draft => {
     const key = mapping[type];
     draft[key] = draft[key].filter(item => (type === "weight" || type === "steps" ? item.date : item.id) !== id);
@@ -3273,6 +3339,31 @@ function submitDelete(type,id) {
     comboDialog();
     notify("已删除组合");
   } else savedMessage("已删除");
+}
+function openWater({date = ui.date,id} = {}) {
+  const previous = id ? data.water.find(entry => entry.id === id) : null;
+  if (id && !previous) return;
+  openModal(previous ? "编辑饮水记录" : "记录饮水",`<form class="stack" data-form="water">
+    <input type="hidden" name="id" value="${html(previous?.id || "")}">
+    <div class="form-grid">
+      ${field("日期",dateField("date",previous?.date ?? date,"required"))}
+      ${numField("饮水量（mL）","ml",previous?.ml,{min:1,max:maxWaterEntry,step:1,required:true,placeholder:"例如 300"})}
+    </div>
+    ${modalFooter(previous ? "保存修改" : "保存饮水")}
+  </form>`,{focus:'[name="ml"]'});
+}
+function saveWater(date,ml,id = null) {
+  const entry = {id:id ?? uniqueId(),date,ml};
+  if (!validWater(entry)) {
+    errorMessage("请选择有效日期，并填写 1–" + fmt(maxWaterEntry) + " mL 的整数。");
+    return;
+  }
+  if (!commit(draft => {
+    if (id && !draft.water.some(item => item.id === id)) throw Error("此记录已被删除。");
+    addById(draft.water,entry);
+  })) return;
+  showSavedDate(date,"food");
+  savedMessage(id ? "饮水记录已更新" : "已记录 " + fmt(ml) + " mL 饮水");
 }
 function submitProfile(fields) {
   const profile = Object.fromEntries(Object.keys(initialProfile).map(key => [key,
@@ -3326,6 +3417,9 @@ function exportCsv(type) {
     return ["体重记录",csv(["日期","测量时间","体重(kg)","体脂率(%)","备注"],
       sortWeights().map(weight => [weight.date,weight.time,weight.kg,weight.fat,weight.note]))];
   }
+  if (type === "water") {
+    return ["饮水记录",csv(["日期","饮水量(mL)"],[...data.water].sort(byDay).map(entry => [entry.date,entry.ml]))];
+  }
   const workout = byDate(data.exercise);
   const steps = new Map(data.steps.map(item => [item.date,item.count]));
   const weights = sortWeights();
@@ -3356,7 +3450,7 @@ function exportCsv(type) {
   if (type === "energy") {
     const food = byDate(data.meals);
     return ["每日能量",csv(["日期","参考体重(kg)","BMR估算(kcal)","实际步数","估算采用步数","扣除重叠步数","运动净消耗(kcal)","摄入(kcal)","摄入下限(kcal)","摄入上限(kcal)","消耗估算(kcal)","消耗下限(kcal)","消耗上限(kcal)","摄入减消耗(kcal)","差值下限(kcal)","差值上限(kcal)"],
-    withWeight(activeDates()).map(([date,kg]) => {
+    withWeight(activeDates(false)).map(([date,kg]) => {
       const totals = food.has(date) ? sumFood(food.get(date)) : null;
       const energy = energyEstimate(data.profile,kg,steps.get(date) ?? null,workout.get(date) || []);
       const hasBalance = totals !== null && energy.estimate !== null;
@@ -3401,10 +3495,11 @@ async function readImport(file) {
     let restored;
     try { restored = JSON.parse(contents.replace(/^\uFEFF/,"")); }
     catch { throw Error("JSON 格式无效。请重新选择应用导出的备份文件。"); }
-    pendingImport = validateState(restored);
+    restored = validateState(restored);
+    pendingImport = restored;
     openModal("确认恢复备份", `<form class="stack" data-form="import">
       <p class="small muted">文件 · ${html(file.name)}</p>
-      <p>将恢复 ${restored.meals.length} 条饮食、${restored.weights.length} 条体重、${restored.steps.length} 条步数、${restored.exercise.length} 条训练及全部个人设置。</p>
+      <p>将恢复 ${restored.meals.length} 条饮食、${restored.water.length} 条饮水、${restored.weights.length} 条体重、${restored.steps.length} 条步数、${restored.exercise.length} 条训练及全部个人设置。</p>
       <p class="callout warn">恢复会替换当前数据。可先取消，并导出当前数据作为备份。</p>
       ${modalFooter("确认恢复")}
     </form>`);
@@ -3426,7 +3521,7 @@ function confirmImport() {
 }
 function clearDialog() {
   openModal("清空所有数据", `<div class="stack">
-    <p>清除饮食、体重、运动、步数、自定义食物、收藏和份量偏好，并把个人设置恢复为初始值。</p>
+    <p>清除饮食、饮水、体重、运动、步数、自定义食物、收藏和份量偏好，并把个人设置恢复为初始值。</p>
     <p class="callout warn">此操作无法撤销。已有 JSON 备份可以恢复记录。</p>
     <div class="form-actions">${button("取消","close")}${button("继续清空","clear-confirm",{style:"danger"})}</div>
   </div>`);
@@ -3535,6 +3630,8 @@ const actions = {
   "servings-manage":manageServings,
   "serving-clear":({id}) => clearFoodPortions(id),
   "weight-edit":({date}) => openWeight(date || ui.date),
+  "water-add":({date,ml}) => saveWater(date,Number(ml)),
+  "water-edit":({date,id}) => openWater({date,id}),
   "exercise-edit":({id,kind}) => openExercise({id,kind}),
   "copy-meal":copyMealDialog,
   combos:comboDialog,
@@ -3559,6 +3656,7 @@ const formHandlers = {
   "food-editor":submitFoodEditor,
   "quick-save":saveQuick,
   weight:submitWeight,
+  water:fields => saveWater(fields.get("date"),nullable(fields.get("ml")),fields.get("id") || null),
   steps:submitSteps,
   exercise:submitExercise,
   custom:submitCustom,
