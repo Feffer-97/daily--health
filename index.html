@@ -100,6 +100,7 @@ select {
 main { max-width:1360px; margin:auto; padding:32px clamp(24px,3.6vw,54px) 48px; }
 .page-head { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:24px; }
 .page-lead { margin-top:7px; color:var(--muted); font-size:.875rem; }
+.mobile-save { display:none; }
 .actions,.row,.wrap { display:flex; align-items:center; gap:8px; }
 .actions,.wrap { flex-wrap:wrap; }
 .spread { justify-content:space-between; }
@@ -273,6 +274,7 @@ dialog .stack { gap:13px; }
 @media (max-width:900px), (hover:none) and (pointer:coarse) {
   .sidebar { inset:auto 0 0 0; width:auto; padding:3px 4px max(5px,env(safe-area-inset-bottom)); display:block; border:0; border-top:1px solid var(--line); }
   .sidebar .brand,.side-footer,.nav-desktop { display:none; }
+  .mobile-save { display:block; margin-top:4px; color:var(--muted); }
   #nav { grid-template-columns:repeat(8,minmax(0,1fr)); gap:2px; }
   .nav-link { flex-direction:column; text-align:center; justify-content:center; gap:3px; padding:3px 0; min-height:48px; font-size:.75rem; }
   .nav-mobile { display:block; }
@@ -901,6 +903,8 @@ const initialProfile = {age:null, sex:null, height:null, initialWeight:null, goa
   refBmr:null, refTdee:null, activity:null, kcalGoal:null, pGoal:null, cGoal:null, fGoal:null};
 const initialSettings = {theme:"light", bowl:150, cup:250};
 const STORE_KEY = "daily-health-journal:share:v1";
+const TAB_COPY_KEY = STORE_KEY + ":tab-copy";
+const VIEW_KEY = STORE_KEY + ":view";
 const SCHEMA = "daily-health-journal";
 function blankState() {
   return {
@@ -991,20 +995,63 @@ function validateState(state) {
   if (![state.firstSavedAt,state.savedAt,state.backupAt].every(validStamp)) throw Error("存储时间格式无效。");
   return state;
 }
-let data = blankState();
-let storageMode = "ready";
-let storedRaw = null;
-try {
-  storedRaw = localStorage.getItem(STORE_KEY);
-} catch {
-  storageMode = "memory";
-}
-if (storedRaw !== null) {
+function readStorage(name,key) {
   try {
-    data = validateState(JSON.parse(storedRaw));
-  } catch {
-    storageMode = "invalid";
+    return {available:true,raw:globalThis[name].getItem(key)};
+  } catch (error) {
+    return {available:false,raw:null,error};
   }
+}
+function writeStorage(name,key,raw) {
+  try {
+    const storage = globalThis[name];
+    storage.setItem(key,raw);
+    if (storage.getItem(key) !== raw) return Error("浏览器没有确认写入。");
+    return null;
+  } catch (error) {
+    return error;
+  }
+}
+function parseSavedState(raw) {
+  if (raw === null) return null;
+  try { return validateState(JSON.parse(raw)); }
+  catch { return null; }
+}
+function readTabCopy() {
+  try {
+    const copy = JSON.parse(readStorage("sessionStorage",TAB_COPY_KEY).raw);
+    return copy && validStamp(copy.base) ? {state:validateState(copy.state),base:copy.base} : null;
+  } catch { return null; }
+}
+function rememberTabCopy(state,base) {
+  return writeStorage("sessionStorage",TAB_COPY_KEY,JSON.stringify({state,base}));
+}
+const startupStorage = readStorage("localStorage",STORE_KEY);
+const startupState = parseSavedState(startupStorage.raw);
+let storedRaw = startupStorage.raw;
+let storedAt = startupState?.savedAt ?? null;
+let data = startupState ?? blankState();
+let storageMode = !startupStorage.available ? "memory" : storedRaw !== null && !startupState ? "invalid" : "ready";
+let recoveredTab = false;
+{
+  const tab = readTabCopy();
+  const temporary = tab && tab.base !== tab.state.savedAt;
+  if (tab?.state.savedAt && (!startupState || temporary)) {
+    data = tab.state;
+    recoveredTab = true;
+    if (startupState && tab.base !== storedAt) {
+      storageMode = "conflict";
+    } else if (storageMode !== "invalid") {
+      storageMode = "session";
+      const raw = JSON.stringify(data);
+      if (startupStorage.available && !writeStorage("localStorage",STORE_KEY,raw)) {
+        storedRaw = raw;
+        storedAt = data.savedAt;
+        storageMode = "ready";
+      }
+    }
+  }
+  if (storageMode === "ready" && storedAt) rememberTabCopy(data,storedAt);
 }
 
 const ui = {
@@ -1030,33 +1077,44 @@ function commit(mutator, {replace = null} = {}) {
     errorMessage("本地存储格式异常。请先在个人设置中恢复备份，或清空后重新开始。");
     return false;
   }
+  if (storageMode === "conflict" && replace === null) {
+    errorMessage("两个标签页有不同的记录。请先导出本页的 JSON 备份。");
+    return false;
+  }
+  const current = readStorage("localStorage",STORE_KEY);
+  if (current.available && current.raw !== null && current.raw !== storedRaw) {
+    syncStorage(current.raw);
+    errorMessage("另一个标签页刚更新了数据。请查看页面的保存状态后重试。");
+    return false;
+  }
   const next = replace === null ? clone(data) : clone(replace);
   try {
     mutator(next);
-    const stamp = new Date().toISOString();
+    const previousSave = data.savedAt ? Date.parse(data.savedAt) : 0;
+    const stamp = new Date(Math.max(Date.now(),previousSave + 1)).toISOString();
     next.firstSavedAt ??= stamp;
     next.savedAt = stamp;
     validateState(next);
-    if (storageMode !== "memory") {
-      const nowRaw = localStorage.getItem(STORE_KEY);
-      if (nowRaw !== storedRaw) {
-        syncStorage(nowRaw);
-        errorMessage("另一个标签页刚更新了数据。已同步，请再试一次。");
-        return false;
+    const raw = JSON.stringify(next);
+    const saveError = current.available ? writeStorage("localStorage",STORE_KEY,raw) : current.error;
+    const tabError = rememberTabCopy(next,saveError ? storedAt : next.savedAt);
+    if (!saveError) {
+      storedRaw = raw;
+      storedAt = next.savedAt;
+      storageMode = "ready";
+      if (tabError) {
+        try { sessionStorage.removeItem(TAB_COPY_KEY); }
+        catch { /* The primary browser copy is already saved. */ }
       }
-      const raw = JSON.stringify(next);
-      try {
-        localStorage.setItem(STORE_KEY, raw);
-      } catch (error) {
-        if (storedRaw === null && error.name === "SecurityError") storageMode = "memory";
-        else throw error;
-      }
-      if (storageMode !== "memory") {
-        storedRaw = raw;
-        storageMode = "ready";
-      }
+    } else if (!tabError) {
+      storageMode = "session";
+    } else if (storedRaw !== null || saveError.name === "QuotaExceededError" || storageMode === "session") {
+      throw saveError;
+    } else {
+      storageMode = "memory";
     }
     data = next;
+    recoveredTab = false;
     return true;
   } catch (error) {
     errorMessage(error.name === "QuotaExceededError" ?
@@ -1067,20 +1125,30 @@ function commit(mutator, {replace = null} = {}) {
   }
 }
 function syncStorage(raw) {
-  if (storageMode === "memory" || raw === storedRaw) return;
+  if (raw === storedRaw) return;
   storedRaw = raw;
-  try {
-    data = raw === null ? blankState() : validateState(JSON.parse(raw));
+  const next = parseSavedState(raw);
+  storedAt = next?.savedAt ?? null;
+  if (next && data.savedAt && ["session","memory","conflict"].includes(storageMode) && raw !== JSON.stringify(data)) {
+    storageMode = "conflict";
+  } else if (next) {
+    data = next;
     storageMode = "ready";
-  } catch {
+    rememberTabCopy(data,storedAt);
+  } else if (raw !== null) {
     storageMode = "invalid";
+  } else if (data.savedAt) {
+    storageMode = rememberTabCopy(data,storedAt) ? "memory" : "session";
+  } else {
+    storageMode = "ready";
   }
+  recoveredTab = false;
   render();
 }
 window.addEventListener("storage", event => {
   if (event.key === STORE_KEY || event.key === null) {
-    try { syncStorage(localStorage.getItem(STORE_KEY)); }
-    catch { /* The browser may disable storage while the page is open. */ }
+    const current = readStorage("localStorage",STORE_KEY);
+    if (current.available) syncStorage(current.raw);
   }
 });
 
@@ -1352,25 +1420,50 @@ function renderChrome() {
     library:`${catalog.length} 种内置食物 · 按每 100 g 查看营养`,
     settings:"管理目标、常用份量和本地备份"
   };
-  el("pageHead").innerHTML = `<div class="grow"><h1>${headingText}</h1><p class="page-lead">${sub[ui.view]}</p></div>
+  const saved = ["ready","session"].includes(storageMode) ? data.savedAt : null;
+  const saveLabel = storageMode === "session" ? "本标签页临时保存" : "最近保存";
+  const savedTime = saved ? `<time datetime="${html(saved)}">${stampFormat.format(new Date(saved))}</time>` : "";
+  el("pageHead").innerHTML = `<div class="grow"><h1>${headingText}</h1><p class="page-lead">${sub[ui.view]}</p>
+    ${savedTime ? `<p class="small mobile-save">${saveLabel} · ${savedTime}</p>` : ""}</div>
     <div class="actions">${button(theme === "light" ? "切换深色模式" : "切换浅色模式","theme",{sym:theme === "light" ? "moon" : "sun",iconOnly:true})}
     ${ui.view === "overview" ? button("记一餐","quick",{sym:"plus",style:"primary",attrs:{date:today}}) : ""}</div>`;
-  const saved = storageMode === "ready" && data.savedAt;
-  el("saveStatus").innerHTML = `<div class="side-status">${icon(storageMode === "ready" ? "check" : "warn")}<span>${storageMode === "ready" ? "浏览器本地存储" : "本地存储异常"}</span></div>
-    ${saved ? `<time class="small" datetime="${html(saved)}">保存于 ${stampFormat.format(new Date(saved))}</time>` :
+  el("saveStatus").innerHTML = `<div class="side-status">${icon(storageMode === "ready" ? "check" : "warn")}<span>${storageMode === "ready" ? "浏览器本地存储" : "请检查保存状态"}</span></div>
+    ${savedTime ? `<span class="small">${saveLabel} · ${savedTime}</span>` :
       `<span class="small">${storageMode === "ready" ? "尚无保存记录" : "请查看备份设置"}</span>`}`;
   const notice = el("storageNotice");
-  if (storageMode === "memory") {
-    notice.innerHTML = `<div class="callout warn">当前浏览器禁用了本地存储。关闭页面前请到个人设置导出 JSON 备份。</div>`;
+  const backupButton = button("导出 JSON 备份","export",{style:"compact",attrs:{type:"json"}});
+  if (storageMode === "session") {
+    notice.innerHTML = `<div class="callout warn row wrap spread">记录临时保存在这个标签页，可以刷新。关闭标签页前请下载备份。${backupButton}</div>`;
+  } else if (storageMode === "memory") {
+    notice.innerHTML = `<div class="callout warn row wrap spread">浏览器未确认本机保存。请在刷新或关闭页面前下载备份。${backupButton}</div>`;
   } else if (storageMode === "invalid") {
-    notice.innerHTML = `<div class="callout error">本地数据格式异常，已暂停覆盖。可在个人设置导入可用的 JSON 备份。</div>`;
+    notice.innerHTML = `<div class="callout error row wrap spread">本地数据格式异常。可在个人设置导入 JSON 备份。${recoveredTab ? backupButton : ""}</div>`;
+  } else if (storageMode === "conflict") {
+    notice.innerHTML = `<div class="callout warn row wrap spread">另一个标签页有更新。本页保留了临时记录，请先下载备份。${backupButton}</div>`;
+  } else if (recoveredTab) {
+    notice.innerHTML = `<div class="callout">已从当前标签页恢复记录，并保存到浏览器。</div>`;
   } else if (backupDue() && ui.view === "overview") {
     notice.innerHTML = `<div class="callout warn row wrap spread">已有 14 天未备份。导出 JSON 可在清理浏览器数据后恢复记录。
       ${button("备份数据","export",{style:"compact",attrs:{type:"json"}})}</div>`;
   } else notice.textContent = "";
 }
+function restoreView() {
+  try {
+    const previous = JSON.parse(readStorage("sessionStorage",VIEW_KEY).raw);
+    if (!previous || !owned(navPages,previous.view) || !isDay(previous.date)) return;
+    ui.view = previous.view;
+    ui.date = previous.date === previous.today ? localDay() : previous.date;
+    ui.calMonth = ui.date === previous.date && isDay(previous.calMonth + "-01") ? previous.calMonth : ui.date.slice(0,7);
+  } catch { /* The page can render with its default view. */ }
+}
+function rememberView() {
+  writeStorage("sessionStorage",VIEW_KEY,JSON.stringify({
+    view:ui.view,date:ui.date,calMonth:ui.calMonth,today:localDay()
+  }));
+}
 function render(focus = false) {
   ui.charts.clear();
+  rememberView();
   renderChrome();
   const renderers = {overview:overviewView, food:foodView, weight:weightView, exercise:exerciseView,
     trends:trendsView, calendar:calendarView, library:libraryView, settings:settingsView};
@@ -1399,6 +1492,11 @@ function setDay(date, updateMonth = true) {
   ui.date = date;
   if (updateMonth) ui.calMonth = date.slice(0,7);
   render();
+}
+function showSavedDate(date,view) {
+  ui.date = date;
+  ui.calMonth = date.slice(0,7);
+  if (ui.view === "overview" && date !== localDay()) ui.view = view;
 }
 function dayBar() {
   return `<div class="day-bar">
@@ -2149,7 +2247,7 @@ function settingsView() {
     <section class="card">
       ${titleBar("资料备份","", "download")}
       <div class="stack tight">
-        <p class="small muted">最近保存 ${storageMode === "ready" && data.savedAt ? `<time datetime="${html(data.savedAt)}">${new Date(data.savedAt).toLocaleString("zh-CN",{hour12:false})}</time>` : "—"}</p>
+        <p class="small muted">${storageMode === "session" ? "本标签页临时保存" : "最近保存"} ${["ready","session"].includes(storageMode) && data.savedAt ? `<time datetime="${html(data.savedAt)}">${new Date(data.savedAt).toLocaleString("zh-CN",{hour12:false})}</time>` : "—"}</p>
         <p class="small muted">最近导出 JSON ${data.backupAt ? `<time datetime="${html(data.backupAt)}">${new Date(data.backupAt).toLocaleString("zh-CN",{hour12:false})}</time>` : "—"}</p>
         <p class="callout ${backupDue() ? "warn" : ""}">建议每 14 天导出一次 JSON。清理浏览器数据、换浏览器或移动 HTML 文件时，可从 JSON 恢复全部记录。</p>
         <div class="actions">
@@ -2192,7 +2290,8 @@ function cancelModal() {
 function savedMessage(message) {
   closeModalIfOpen();
   render();
-  notify(storageMode === "memory" ? message + "（仅保存在当前页面，请导出备份）" : message);
+  notify(storageMode === "memory" ? "记录已更新，请先导出备份以便下次打开。" :
+    storageMode === "session" ? message + "（本标签页临时保存）" : message);
 }
 function closeModalIfOpen() {
   if (el("modal").open) closeModal();
@@ -2469,7 +2568,7 @@ function submitFoodEditor() {
     addById(draft.meals,entry);
     if (editor.remember) rememberEntry(draft,entry);
   })) return;
-  ui.date = entry.date;
+  showSavedDate(entry.date,"food");
   savedMessage(editor.entryId ? "饮食记录已更新" : "食物已添加到" + meals[entry.meal][0]);
 }
 
@@ -2707,7 +2806,7 @@ function saveQuick() {
       if (item.remember) rememberEntry(draft,entry);
     }
   })) return;
-  ui.date = quick.date;
+  showSavedDate(quick.date,"food");
   savedMessage("已保存" + meals[quick.meal][0] + "，共 " + quick.items.length + " 项");
 }
 
@@ -2929,8 +3028,7 @@ function submitWeight(fields) {
     if (previousDate && previousDate !== weight.date) draft.weights = draft.weights.filter(item => item.date !== previousDate);
     addByDate(draft.weights,weight);
   })) return;
-  ui.date = weight.date;
-  ui.calMonth = weight.date.slice(0,7);
+  showSavedDate(weight.date,"weight");
   savedMessage(previousDate ? "体重记录已更新" : "体重已保存");
 }
 function submitSteps(fields) {
@@ -3011,7 +3109,7 @@ function submitExercise(fields) {
     if (oldId && !draft.exercise.some(item => item.id === oldId)) throw Error("此记录已被删除。");
     addById(draft.exercise,sport);
   })) return;
-  ui.date = sport.date;
+  showSavedDate(sport.date,"exercise");
   savedMessage(oldId ? "训练记录已更新" : "训练已保存");
 }
 
@@ -3067,7 +3165,7 @@ function copyEntries(entries,date,meal,message) {
   if (!commit(draft => {
     draft.meals.push(...entries.map(entry => ({...entry,id:uniqueId(),date,meal})));
   })) return false;
-  ui.date = date;
+  showSavedDate(date,"food");
   savedMessage(message);
   return true;
 }
@@ -3273,7 +3371,7 @@ function exportData(type) {
   try {
     if (type === "json") {
       const stamp = new Date().toISOString();
-      const saved = storageMode !== "invalid" && commit(draft => { draft.backupAt = stamp; });
+      const saved = !["invalid","conflict"].includes(storageMode) && commit(draft => { draft.backupAt = stamp; });
       const backup = saved ? data : {...data,backupAt:stamp};
       download(`健康记录备份-${localDay()}.json`,JSON.stringify(backup,null,2),"application/json;charset=utf-8");
       if (saved) render();
@@ -3617,15 +3715,18 @@ let lastToday = localDay();
 function refreshToday() {
   const today = localDay();
   if (today === lastToday || el("modal").open) return;
-  if (ui.date === lastToday) {
+  const followsToday = ui.date === lastToday;
+  if (followsToday && document.activeElement?.closest?.("form")) return;
+  if (followsToday) {
     ui.date = today;
     ui.calMonth = today.slice(0,7);
   }
   lastToday = today;
-  if (ui.view === "overview" || ui.view === "trends") render();
+  if (followsToday || ui.view === "overview" || ui.view === "trends") render();
 }
 document.addEventListener("visibilitychange",() => { if (!document.hidden) refreshToday(); });
 setInterval(refreshToday,60000);
+restoreView();
 render();
 </script>
 </body>
